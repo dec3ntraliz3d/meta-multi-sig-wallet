@@ -29,7 +29,7 @@ function MultiSig({
         </div>
         <div>
           <QR
-            value={contractAddress ? contractAddress : ""}
+            value={contractAddress ? contractAddress.toString() : ""}
             size="180"
             level="H"
             includeMargin

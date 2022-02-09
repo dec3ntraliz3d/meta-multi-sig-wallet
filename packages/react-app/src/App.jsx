@@ -30,7 +30,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { MultiSig, ExampleUI, Hints, Subgraph } from "./views";
+import { MultiSig, Owners, ExampleUI, Subgraph } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -159,6 +159,10 @@ function App(props) {
   //📟 Listen for broadcast events
   const executeTransactionEvents = useEventListener(readContracts, contractName, "ExecuteTransaction", localProvider, 1);
   if (DEBUG) console.log("📟 executeTransactionEvents:", executeTransactionEvents)
+
+  const ownerEvents = useEventListener(readContracts, contractName, "Owner", localProvider, 1)
+  if (DEBUG) console.log("📟 ownerEvents:", ownerEvents)
+
   // EXTERNAL CONTRACT EXAMPLE:
   //
   // If you want to bring in the mainnet DAI contract it would look like:
@@ -252,6 +256,8 @@ function App(props) {
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
+  const signaturesRequired = useContractReader(readContracts, contractName, "signaturesRequired")
+  if (DEBUG) console.log("✳️ signaturesRequired:", signaturesRequired)
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -268,11 +274,8 @@ function App(props) {
         <Menu.Item key="/">
           <Link to="/">Multisig</Link>
         </Menu.Item>
-        <Menu.Item key="/debug">
-          <Link to="/debug">Debug Contracts</Link>
-        </Menu.Item>
-        <Menu.Item key="/hints">
-          <Link to="/hints">Hints</Link>
+        <Menu.Item key="/owners">
+          <Link to="/owners">Owners</Link>
         </Menu.Item>
         <Menu.Item key="/exampleui">
           <Link to="/exampleui">ExampleUI</Link>
@@ -283,6 +286,10 @@ function App(props) {
         <Menu.Item key="/subgraph">
           <Link to="/subgraph">Subgraph</Link>
         </Menu.Item>
+        <Menu.Item key="/debug">
+          <Link to="/debug">Debug Contracts</Link>
+        </Menu.Item>
+
       </Menu>
 
       <Switch>
@@ -310,18 +317,23 @@ function App(props) {
             name="MetaMultiSigWallet"
             price={price}
             signer={userSigner}
-            locatProvider={localProvider}
+            provider={localProvider}
             address={address}
             blockExplorer={blockExplorer}
             contractConfig={contractConfig}
           />
         </Route>
-        <Route path="/hints">
-          <Hints
+        <Route path="/owners">
+          <Owners
+            contractName={contractName}
+            signaturesRequired={signaturesRequired}
+            readContracts={readContracts}
+            ownerEvents={ownerEvents}
             address={address}
             yourLocalBalance={yourLocalBalance}
             mainnetProvider={mainnetProvider}
             price={price}
+            blockExplorer={blockExplorer}
           />
         </Route>
         <Route path="/exampleui">
