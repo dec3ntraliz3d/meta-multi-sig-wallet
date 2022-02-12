@@ -1,9 +1,12 @@
 import { List, Select, Input, Button } from "antd";
 import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
+import { useLocalStorage } from "../hooks";
 import { useEffect } from "react";
 
 import { Address, AddressInput } from "../components";
 const { Option } = Select;
+
 
 export default function Owners({
   contractName,
@@ -17,10 +20,16 @@ export default function Owners({
   blockExplorer
 
 }) {
-  const [methodName, setMethodName] = useState("addSigner");
-  const [newOwner, setNewOwner] = useState("")
-  const [newSignaturesRequired, setNewSignaturesRequired] = useState(1)
-  const [callData, setCallData] = useState("0x")
+
+  const history = useHistory();
+
+  const [methodName, setMethodName] = useLocalStorage("methodName", "addSigner");
+  const [newOwner, setNewOwner] = useLocalStorage("newOwner")
+  const [newSignaturesRequired, setNewSignaturesRequired] = useLocalStorage("newSignaturesRequired")
+  const [callData, setCallData] = useLocalStorage("callData", "0x")
+  const [to, setTo] = useLocalStorage("to");
+  const [amount, setAmount] = useLocalStorage("amount", "0");
+
   useEffect(() => {
     console.log(`newOwner: ${newOwner}`)
     console.log("calldata", callData)
@@ -79,13 +88,12 @@ export default function Owners({
           <Button onClick={() => {
 
             setCallData(readContracts[contractName].interface.encodeFunctionData(methodName, [newOwner, newSignaturesRequired]))
-
-
-            // setAmount("0")
-            // setTo(readContracts[contractName].address)
-            // setTimeout(() => {
-            //   history.push('/create')
-            // }, 777)
+            console.log("Owners:methodName:", methodName)
+            setAmount("0")
+            setTo(readContracts[contractName].address)
+            setTimeout(() => {
+              history.push('/create')
+            }, 777)
           }}>
             Create Tx
           </Button>

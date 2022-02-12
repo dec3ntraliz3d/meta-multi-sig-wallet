@@ -30,8 +30,8 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { MultiSig, Owners, ExampleUI, Subgraph } from "./views";
-import { useStaticJsonRPC } from "./hooks";
+import { MultiSig, Owners, CreateTransaction, Subgraph } from "./views";
+import { useStaticJsonRPC, useUserProvider } from "./hooks";
 
 const { ethers } = require("ethers");
 /*
@@ -57,8 +57,8 @@ const { ethers } = require("ethers");
 const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true;
-const NETWORKCHECK = true;
+const DEBUG = false;
+const NETWORKCHECK = false;
 const USE_BURNER_WALLET = true; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
 
@@ -70,6 +70,9 @@ const providers = [
   `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`,
   "https://rpc.scaffoldeth.io:48544",
 ];
+
+// const poolServerUrl = "https://backend.multisig.holdings:49832/"
+const poolServerUrl = "http://localhost:49832/"
 
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
@@ -106,6 +109,10 @@ function App(props) {
       window.location.reload();
     }, 1);
   };
+
+
+  const userProvider = useUserProvider(injectedProvider, localProvider);
+  //const address = useUserAddress(userProvider);
 
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
   const price = useExchangeEthPrice(targetNetwork, mainnetProvider);
@@ -277,8 +284,8 @@ function App(props) {
         <Menu.Item key="/owners">
           <Link to="/owners">Owners</Link>
         </Menu.Item>
-        <Menu.Item key="/exampleui">
-          <Link to="/exampleui">ExampleUI</Link>
+        <Menu.Item key="/create">
+          <Link to="/create">Create</Link>
         </Menu.Item>
         <Menu.Item key="/mainnetdai">
           <Link to="/mainnetdai">Mainnet DAI</Link>
@@ -336,18 +343,22 @@ function App(props) {
             blockExplorer={blockExplorer}
           />
         </Route>
-        <Route path="/exampleui">
-          <ExampleUI
-            address={address}
-            userSigner={userSigner}
+        <Route path="/create">
+          <CreateTransaction
+            poolServerUrl={poolServerUrl}
+            contractName={contractName}
+            // address={address}
+            // userProvider={userProvider}
             mainnetProvider={mainnetProvider}
             localProvider={localProvider}
-            yourLocalBalance={yourLocalBalance}
+            // yourLocalBalance={yourLocalBalance}
             price={price}
             tx={tx}
-            writeContracts={writeContracts}
+            // writeContracts={writeContracts}
             readContracts={readContracts}
-            purpose={purpose}
+            // setRoute={setRoute}
+            userSigner={userSigner}
+            DEBUG={DEBUG}
           />
         </Route>
         <Route path="/mainnetdai">
