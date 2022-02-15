@@ -31,8 +31,7 @@ export default function Owners({
   const [amount, setAmount] = useLocalStorage("amount", "0");
 
   useEffect(() => {
-    console.log(`newOwner: ${newOwner}`)
-    console.log("calldata", callData)
+
   }, [newOwner, callData])
   return (
     <div>
@@ -87,7 +86,7 @@ export default function Owners({
         <div style={{ margin: 8, padding: 8 }}>
           <Button onClick={() => {
 
-            setCallData(readContracts[contractName].interface.encodeFunctionData(methodName, [newOwner, newSignaturesRequired]))
+            setCallData(readContracts?.MetaMultiSigWallet?.interface?.encodeFunctionData(methodName, [newOwner, newSignaturesRequired]))
             console.log("Owners:methodName:", methodName)
             setAmount("0")
             setTo(readContracts[contractName].address)

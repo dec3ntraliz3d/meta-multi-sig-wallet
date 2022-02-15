@@ -62,8 +62,8 @@ export default function CreateTransaction({
       console.log(`Transactions:methodName:${methodName}`)
       try {
         if (methodName == "transferFunds") {
-          console.log("Send transaction selected")
-          console.log("🔥🔥🔥🔥🔥🔥", amount)
+          // console.log("Send transaction selected")
+          // console.log("🔥🔥🔥🔥🔥🔥", amount)
           //const transferCallData = readContracts.MetaMultiSigWallet?.interface?.encodeFunctionData("transferFunds", [to, parseEther("" + parseFloat(amount).toFixed(12))])
           setCallData("0x");
         }
@@ -74,10 +74,10 @@ export default function CreateTransaction({
         console.log("decodedDataObject", decodedDataObject);
         setCreateTxnEnabled(true);
         if (decodedDataObject?.signature === "addSigner(address,uint256)") {
-          setMethodName("addSigner")
+          //setMethodName("addSigner")
           setSelectDisabled(true)
         } else if (decodedDataObject?.signature === "removeSigner(address,uint256)") {
-          setMethodName("removeSigner")
+          //setMethodName("removeSigner")
           setSelectDisabled(true)
         }
         decodedData = (
@@ -131,7 +131,7 @@ export default function CreateTransaction({
     return () => {
       clearTimeout(inputTimer);
     };
-  }, [callData, decodedData, amount]);
+  }, [callData, decodedData, amount, methodName]);
 
   let resultDisplay;
   if (result) {
@@ -165,8 +165,8 @@ export default function CreateTransaction({
           <div style={{ margin: 8, padding: 8 }}>
             <Select value={methodName} disabled={selectDisabled} style={{ width: "100%" }} onChange={setMethodName}>
               <Option key="transferFunds">transferFunds()</Option>
-              <Option disabled={true} key="addSigner">addSigner()</Option>
-              <Option disabled={true} key="removeSigner">removeSigner()</Option>
+              <Option disabled={false} key="addSigner">addSigner()</Option>
+              <Option disabled={false} key="removeSigner">removeSigner()</Option>
             </Select>
           </div>
           <div style={inputStyle}>
@@ -231,7 +231,7 @@ export default function CreateTransaction({
                   nonce: nonce.toNumber(),
                   to,
                   amount,
-                  callData,
+                  data: callData,
                   hash: newHash,
                   signatures: [signature],
                   signers: [recover],

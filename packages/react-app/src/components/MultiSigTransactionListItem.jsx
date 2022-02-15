@@ -5,7 +5,13 @@ import { Address, Balance, Blockie, TransactionDetailsModal } from "../component
 import { EllipsisOutlined } from "@ant-design/icons";
 import { parseEther, formatEther } from "@ethersproject/units";
 
-const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, price, readContracts, contractName, children }) {
+const MultiSigTransactionListItem = function ({ item,
+  mainnetProvider,
+  blockExplorer,
+  price,
+  readContracts,
+  contractName,
+  children }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [txnInfo, setTxnInfo] = useState(null);
 
@@ -21,7 +27,10 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
   console.log("🔥🔥🔥🔥", item)
   let txnData;
   try {
-    txnData = readContracts[contractName].interface.parseTransaction(item);
+    txnData = readContracts[contractName].interface.parseTransaction({ data: item.args[3] });
+    console.log(txnData)
+
+
   } catch (error) {
     console.log("ERROR", error)
   }
@@ -33,7 +42,7 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
       mainnetProvider={mainnetProvider}
       price={price}
     />
-    {txnData && <List.Item key={item.hash} style={{ position: "relative" }}>
+    {txnData && <List.Item key={item.args.hash} style={{ position: "relative" }}>
       <div
         style={{
           position: "absolute",
@@ -55,12 +64,12 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
           {txnData.args[0]}
         </p>
       </div>
-      {<b style={{ padding: 16 }}>#{typeof (item.nonce) === "number" ? item.nonce : item.nonce.toNumber()}</b>}
+      {<b style={{ padding: 16 }}>#{typeof (item.args.nonce) === "number" ? item.args.nonce : item.args.nonce.toNumber()}</b>}
       <span>
-        <Blockie size={4} scale={8} address={item.hash} /> {item.hash.substr(0, 6)}
+        <Blockie size={4} scale={8} address={item.args.hash} /> {item.args.hash.substr(0, 6)}
       </span>
-      <Address address={item.to} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={16} />
-      <Balance balance={item.value ? item.value : parseEther("" + parseFloat(item.amount).toFixed(12))} dollarMultiplier={price} />
+      <Address address={txnData.args[0]} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={16} />
+      <Balance balance={txnData.value ? txnData.value : parseEther("" + parseFloat(txnData.value).toFixed(12))} dollarMultiplier={price} />
       <>
         {
           children
@@ -75,7 +84,7 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
     </List.Item>}
   </>
 };
-export default TransactionListItem;
+export default MultiSigTransactionListItem;
 
 
 

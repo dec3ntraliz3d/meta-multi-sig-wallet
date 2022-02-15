@@ -11,8 +11,16 @@ const callbacks = {};
 
 const DEBUG = true;
 
-export default function Transactor(providerOrSigner, gasPrice, etherscan) {
+export default function Transactor(
+  providerOrSigner,
+  gasPrice,
+  etherscan
+) {
+  console.log("providerOrSigner", providerOrSigner)
+
+
   if (typeof providerOrSigner !== "undefined") {
+
     // eslint-disable-next-line consistent-return
     return async (tx, callback) => {
       let signer;
@@ -59,6 +67,7 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
 
       try {
         let result;
+        console.log("Sabbir TX", tx)
         if (tx instanceof Promise) {
           if (DEBUG) console.log("AWAITING TX", tx);
           result = await tx;
@@ -120,10 +129,10 @@ export default function Transactor(providerOrSigner, gasPrice, etherscan) {
           e.data && e.data.message
             ? e.data.message
             : e.error && JSON.parse(JSON.stringify(e.error)).body
-            ? JSON.parse(JSON.parse(JSON.stringify(e.error)).body).error.message
-            : e.data
-            ? e.data
-            : JSON.stringify(e);
+              ? JSON.parse(JSON.parse(JSON.stringify(e.error)).body).error.message
+              : e.data
+                ? e.data
+                : JSON.stringify(e);
         if (!e.error && e.message) {
           message = e.message;
         }

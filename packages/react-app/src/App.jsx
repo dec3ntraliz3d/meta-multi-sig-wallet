@@ -10,6 +10,7 @@ import {
 } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import { useEventListener } from "eth-hooks/events/useEventListener";
+// import { useEventListener } from "eth-hooks"
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
@@ -30,7 +31,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { MultiSig, Owners, CreateTransaction, Subgraph } from "./views";
+import { MultiSig, Owners, CreateTransaction, Subgraph, Transactions } from "./views";
 import { useStaticJsonRPC, useUserProvider } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -187,6 +188,8 @@ function App(props) {
 
   // keep track of a variable from the contract in the local React state:
   const purpose = useContractReader(readContracts, "YourContract", "purpose");
+  const nonce = useContractReader(readContracts, "MetaMultiSigWallet", "nonce")
+
 
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
@@ -287,8 +290,8 @@ function App(props) {
         <Menu.Item key="/create">
           <Link to="/create">Create</Link>
         </Menu.Item>
-        <Menu.Item key="/mainnetdai">
-          <Link to="/mainnetdai">Mainnet DAI</Link>
+        <Menu.Item key="/pool">
+          <Link to="/pool">Pool</Link>
         </Menu.Item>
         <Menu.Item key="/subgraph">
           <Link to="/subgraph">Subgraph</Link>
@@ -341,6 +344,7 @@ function App(props) {
             mainnetProvider={mainnetProvider}
             price={price}
             blockExplorer={blockExplorer}
+            nonce={nonce}
           />
         </Route>
         <Route path="/create">
@@ -359,18 +363,23 @@ function App(props) {
             // setRoute={setRoute}
             userSigner={userSigner}
             DEBUG={DEBUG}
+            nonce={nonce}
           />
         </Route>
-        <Route path="/mainnetdai">
-          <Contract
-            name="DAI"
-            customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.DAI}
-            signer={userSigner}
-            provider={mainnetProvider}
-            address={address}
-            blockExplorer="https://etherscan.io/"
-            contractConfig={contractConfig}
-            chainId={1}
+        <Route path="/pool">
+          <Transactions
+            poolServerUrl={poolServerUrl}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            localProvider={localProvider}
+            mainnetProvider={mainnetProvider}
+            blockExplorer={blockExplorer}
+            price={price}
+            contractName={contractName}
+            userSigner={userSigner}
+            tx={tx}
+            nonce={nonce}
+            signaturesRequired={signaturesRequired}
           />
           {/*
             <Contract
