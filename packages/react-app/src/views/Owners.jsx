@@ -23,16 +23,17 @@ export default function Owners({
 
   const history = useHistory();
 
+  // state variables using useLocalStorage hook
   const [methodName, setMethodName] = useLocalStorage("methodName", "addSigner");
   const [newOwner, setNewOwner] = useLocalStorage("newOwner")
   const [newSignaturesRequired, setNewSignaturesRequired] = useLocalStorage("newSignaturesRequired")
   const [callData, setCallData] = useLocalStorage("callData", "0x")
   const [to, setTo] = useLocalStorage("to");
-  const [amount, setAmount] = useLocalStorage("amount", "0");
+  //const [amount, setAmount] = useLocalStorage("amount", "0");
 
-  useEffect(() => {
+  // useEffect(() => {
 
-  }, [newOwner, callData])
+  // }, [newOwner, callData])
   return (
     <div>
       <h2 style={{ marginTop: 32 }}>
@@ -85,11 +86,9 @@ export default function Owners({
         </div>
         <div style={{ margin: 8, padding: 8 }}>
           <Button onClick={() => {
-
             setCallData(readContracts?.MetaMultiSigWallet?.interface?.encodeFunctionData(methodName, [newOwner, newSignaturesRequired]))
-            console.log("Owners:methodName:", methodName)
-            setAmount("0")
-            setTo(readContracts[contractName].address)
+            //setAmount("0")
+            setTo(readContracts?.MetaMultiSigWallet?.address)
             setTimeout(() => {
               history.push('/create')
             }, 777)
@@ -97,10 +96,7 @@ export default function Owners({
             Create Tx
           </Button>
         </div>
-
       </div>
-
-
     </div>
   );
 }

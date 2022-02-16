@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, Select, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
-import { parseEther, formatEther } from "@ethersproject/units";
+import { Button, Select, Input, Spin } from "antd";
 import { Address, AddressInput, Balance, EtherInput, Blockie } from "../components";
 import { useContractReader } from "eth-hooks";
 import { useLocalStorage } from "../hooks";
@@ -209,7 +208,7 @@ export default function CreateTransaction({
               const newHash = await readContracts?.MetaMultiSigWallet?.getTransactionHash(
                 nonce,
                 to,
-                parseEther("" + parseFloat(amount).toFixed(12)),
+                ethers.utils.parseEther("" + parseFloat(amount).toFixed(12)),
                 callData,
               );
               console.log("newHash", newHash);

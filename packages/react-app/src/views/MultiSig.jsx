@@ -1,10 +1,7 @@
 import React from "react";
-import { useContractReader } from "eth-hooks";
-import { ethers } from "ethers";
 import { Balance, Address, MultiSigTransactionListItem, Events } from "../components";
 import QR from "qrcode.react";
 import { List } from "antd";
-import { CreateTransaction } from ".";
 
 function MultiSig({
   contractAddress,
@@ -53,10 +50,8 @@ function MultiSig({
         renderItem={item => {
           return (
             <>
-
               <MultiSigTransactionListItem item={item} mainnetProvider={mainnetProvider} blockExplorer={blockExplorer} price={price} readContracts={readContracts} contractName={contractName} />
             </>
-
           );
         }}
       />

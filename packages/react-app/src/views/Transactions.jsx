@@ -1,10 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { Button, List, Divider, Input, Card, DatePicker, Slider, Switch, Progress, Spin } from "antd";
-import { SyncOutlined } from "@ant-design/icons";
-import { parseEther, formatEther } from "@ethersproject/units";
+import React, { useState } from "react";
+import { Button, List, Spin } from "antd";
 import { ethers } from "ethers";
-import { Address, AddressInput, Balance, Blockie, TransactionListItem } from "../components";
-import { useContractReader, useEventListener, usePoller } from "../hooks";
+import { TransactionListItem } from "../components";
+import { usePoller } from "../hooks";
 
 const axios = require("axios");
 
@@ -19,7 +17,6 @@ export default function Transactions({
   userProvider,
   mainnetProvider,
   localProvider,
-  yourLocalBalance,
   price,
   tx,
   readContracts,
@@ -122,7 +119,7 @@ export default function Transactions({
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
                     item.to,
-                    parseEther("" + parseFloat(item.amount).toFixed(12)),
+                    ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
                   console.log("newHash", newHash);
@@ -162,7 +159,7 @@ export default function Transactions({
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
                     item.to,
-                    parseEther("" + parseFloat(item.amount).toFixed(12)),
+                    ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
                   console.log("newHash", newHash);
@@ -174,7 +171,7 @@ export default function Transactions({
                   tx(
                     writeContracts[contractName].executeTransaction(
                       item.to,
-                      parseEther("" + parseFloat(item.amount).toFixed(12)),
+                      ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                       item.data,
                       finalSigList,
                     ),

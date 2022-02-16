@@ -10,7 +10,6 @@ import {
 } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import { useEventListener } from "eth-hooks/events/useEventListener";
-// import { useEventListener } from "eth-hooks"
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
@@ -112,7 +111,7 @@ function App(props) {
   };
 
 
-  const userProvider = useUserProvider(injectedProvider, localProvider);
+  //const userProvider = useUserProvider(injectedProvider, localProvider);
   //const address = useUserAddress(userProvider);
 
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
@@ -165,6 +164,7 @@ function App(props) {
   if (DEBUG) console.log(`contractAddress:${contractAddress}`)
 
   //📟 Listen for broadcast events
+  // Events emited by multisig contract
   const executeTransactionEvents = useEventListener(readContracts, contractName, "ExecuteTransaction", localProvider, 1);
   if (DEBUG) console.log("📟 executeTransactionEvents:", executeTransactionEvents)
 
@@ -268,6 +268,7 @@ function App(props) {
 
   const signaturesRequired = useContractReader(readContracts, contractName, "signaturesRequired")
   if (DEBUG) console.log("✳️ signaturesRequired:", signaturesRequired)
+
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -351,16 +352,11 @@ function App(props) {
           <CreateTransaction
             poolServerUrl={poolServerUrl}
             contractName={contractName}
-            // address={address}
-            // userProvider={userProvider}
             mainnetProvider={mainnetProvider}
             localProvider={localProvider}
-            // yourLocalBalance={yourLocalBalance}
             price={price}
             tx={tx}
-            // writeContracts={writeContracts}
             readContracts={readContracts}
-            // setRoute={setRoute}
             userSigner={userSigner}
             DEBUG={DEBUG}
             nonce={nonce}
@@ -381,16 +377,6 @@ function App(props) {
             nonce={nonce}
             signaturesRequired={signaturesRequired}
           />
-          {/*
-            <Contract
-              name="UNI"
-              customContract={mainnetContracts && mainnetContracts.contracts && mainnetContracts.contracts.UNI}
-              signer={userSigner}
-              provider={mainnetProvider}
-              address={address}
-              blockExplorer="https://etherscan.io/"
-            />
-            */}
         </Route>
         <Route path="/subgraph">
           <Subgraph
