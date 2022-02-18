@@ -31,7 +31,7 @@ import externalContracts from "./contracts/external_contracts";
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
 import { MultiSig, Owners, CreateTransaction, Subgraph, Transactions } from "./views";
-import { useStaticJsonRPC, useUserProvider } from "./hooks";
+import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
 /*
@@ -72,7 +72,8 @@ const providers = [
 ];
 
 // const poolServerUrl = "https://backend.multisig.holdings:49832/"
-const poolServerUrl = "http://localhost:49832/"
+const poolServerUrl = "https://meta-multisig-backend.herokuapp.com/"
+//const poolServerUrl = "http://localhost:49832/"
 
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
@@ -109,10 +110,6 @@ function App(props) {
       window.location.reload();
     }, 1);
   };
-
-
-  //const userProvider = useUserProvider(injectedProvider, localProvider);
-  //const address = useUserAddress(userProvider);
 
   /* 💵 This hook will get the price of ETH from 🦄 Uniswap: */
   const price = useExchangeEthPrice(targetNetwork, mainnetProvider);
@@ -167,9 +164,6 @@ function App(props) {
   // Events emited by multisig contract
   const executeTransactionEvents = useEventListener(readContracts, contractName, "ExecuteTransaction", localProvider, 1);
   if (DEBUG) console.log("📟 executeTransactionEvents:", executeTransactionEvents)
-
-  const ownerEvents = useEventListener(readContracts, contractName, "Owner", localProvider, 1)
-  if (DEBUG) console.log("📟 ownerEvents:", ownerEvents)
 
   // EXTERNAL CONTRACT EXAMPLE:
   //
@@ -268,6 +262,8 @@ function App(props) {
 
   const signaturesRequired = useContractReader(readContracts, contractName, "signaturesRequired")
   if (DEBUG) console.log("✳️ signaturesRequired:", signaturesRequired)
+  const owners = useContractReader(readContracts, contractName, "owners")
+
 
   return (
     <div className="App">
@@ -285,18 +281,18 @@ function App(props) {
         <Menu.Item key="/">
           <Link to="/">Multisig</Link>
         </Menu.Item>
-        <Menu.Item key="/owners">
+        {/* <Menu.Item key="/owners">
           <Link to="/owners">Owners</Link>
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item key="/create">
           <Link to="/create">Create</Link>
         </Menu.Item>
         <Menu.Item key="/pool">
           <Link to="/pool">Pool</Link>
         </Menu.Item>
-        <Menu.Item key="/subgraph">
+        {/* <Menu.Item key="/subgraph">
           <Link to="/subgraph">Subgraph</Link>
-        </Menu.Item>
+        </Menu.Item> */}
         <Menu.Item key="/debug">
           <Link to="/debug">Debug Contracts</Link>
         </Menu.Item>
@@ -334,20 +330,15 @@ function App(props) {
             contractConfig={contractConfig}
           />
         </Route>
-        <Route path="/owners">
+        {/* <Route path="/owners">
           <Owners
-            contractName={contractName}
-            signaturesRequired={signaturesRequired}
-            readContracts={readContracts}
-            ownerEvents={ownerEvents}
-            address={address}
-            yourLocalBalance={yourLocalBalance}
+
             mainnetProvider={mainnetProvider}
-            price={price}
             blockExplorer={blockExplorer}
-            nonce={nonce}
+            readContracts={readContracts}
+            contractName={contractName}
           />
-        </Route>
+        </Route> */}
         <Route path="/create">
           <CreateTransaction
             poolServerUrl={poolServerUrl}
@@ -360,6 +351,8 @@ function App(props) {
             userSigner={userSigner}
             DEBUG={DEBUG}
             nonce={nonce}
+            blockExplorer={blockExplorer}
+            signaturesRequired={signaturesRequired}
           />
         </Route>
         <Route path="/pool">
@@ -376,16 +369,18 @@ function App(props) {
             tx={tx}
             nonce={nonce}
             signaturesRequired={signaturesRequired}
+            userSigner={userSigner}
+            owners={owners}
           />
         </Route>
-        <Route path="/subgraph">
+        {/* <Route path="/subgraph">
           <Subgraph
             subgraphUri={props.subgraphUri}
             tx={tx}
             writeContracts={writeContracts}
             mainnetProvider={mainnetProvider}
           />
-        </Route>
+        </Route> */}
       </Switch>
 
       <ThemeSwitch />

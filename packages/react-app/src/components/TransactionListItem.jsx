@@ -18,10 +18,10 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
   };
 
 
-  console.log("🔥🔥🔥🔥", item)
+  console.log("🔥🔥🔥🔥🔥🔥🔥🔥", item)
   let txnData;
   try {
-    txnData = readContracts[contractName].interface.parseTransaction(item);
+    item.data != "0x" ? txnData = readContracts[contractName].interface.parseTransaction(item) : txnData = "";
   } catch (error) {
     console.log("ERROR", error)
   }
@@ -33,7 +33,7 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
       mainnetProvider={mainnetProvider}
       price={price}
     />
-    {txnData && <List.Item key={item.hash} style={{ position: "relative" }}>
+    {<List.Item key={item.hash} style={{ position: "relative" }}>
       <div
         style={{
           position: "absolute",
@@ -48,11 +48,11 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
       >
         <p>
           <b>Event Name :&nbsp;</b>
-          {txnData.functionFragment.name}&nbsp;
+          {txnData != "" ? txnData?.functionFragment?.name : "Ttransfer Funds"}&nbsp;
         </p>
         <p>
           <b>Addressed to :&nbsp;</b>
-          {txnData.args[0]}
+          {txnData != "" ? txnData?.args[0] : item?.to}
         </p>
       </div>
       {<b style={{ padding: 16 }}>#{typeof (item.nonce) === "number" ? item.nonce : item.nonce.toNumber()}</b>}

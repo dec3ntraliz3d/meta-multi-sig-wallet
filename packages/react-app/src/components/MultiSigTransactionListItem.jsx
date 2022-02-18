@@ -23,12 +23,13 @@ const MultiSigTransactionListItem = function ({ item,
     setIsModalVisible(false);
   };
 
+  const data = item?.args[3]
 
-  console.log("🔥🔥🔥🔥", item)
+  console.log("🔥🔥🔥🔥dog", item)
   let txnData;
   try {
-    txnData = readContracts[contractName].interface.parseTransaction({ data: item.args[3] });
-    console.log(txnData)
+    data != "0x" ? txnData = readContracts[contractName]?.interface?.parseTransaction({ data }) : txnData = "";
+    console.log("txnData", txnData)
 
 
   } catch (error) {
@@ -42,7 +43,7 @@ const MultiSigTransactionListItem = function ({ item,
       mainnetProvider={mainnetProvider}
       price={price}
     />
-    {txnData && <List.Item key={item.args.hash} style={{ position: "relative" }}>
+    <List.Item key={item.args.hash} style={{ position: "relative" }}>
       <div
         style={{
           position: "absolute",
@@ -57,19 +58,19 @@ const MultiSigTransactionListItem = function ({ item,
       >
         <p>
           <b>Event Name :&nbsp;</b>
-          {txnData.functionFragment.name}&nbsp;
+          {txnData ? txnData.functionFragment.name : "Transfer Funds"}&nbsp;
         </p>
         <p>
           <b>Addressed to :&nbsp;</b>
-          {txnData.args[0]}
+          {item.args.to}
         </p>
       </div>
       {<b style={{ padding: 16 }}>#{typeof (item.args.nonce) === "number" ? item.args.nonce : item.args.nonce.toNumber()}</b>}
       <span>
         <Blockie size={4} scale={8} address={item.args.hash} /> {item.args.hash.substr(0, 6)}
       </span>
-      <Address address={txnData.args[0]} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={16} />
-      <Balance balance={txnData.value ? txnData.value : ethers.utils.parseEther("" + parseFloat(txnData.value).toFixed(12))} dollarMultiplier={price} />
+      <Address address={item.args.to} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={16} />
+      <Balance balance={item.args.value ? item.args.value : ethers.utils.parseEther("" + parseFloat(item.args.value).toFixed(12))} dollarMultiplier={price} />
       <>
         {
           children
@@ -81,7 +82,7 @@ const MultiSigTransactionListItem = function ({ item,
         <EllipsisOutlined />
       </Button>
 
-    </List.Item>}
+    </List.Item>
   </>
 };
 export default MultiSigTransactionListItem;

@@ -54,7 +54,7 @@ export default function AddressInput(props) {
               address = possibleAddress;
             }
             // eslint-disable-next-line no-empty
-          } catch (e) {}
+          } catch (e) { }
         }
         setValue(address);
         if (typeof onChange === "function") {
@@ -109,6 +109,7 @@ export default function AddressInput(props) {
         id="0xAddress" // name it something other than address for auto fill doxxing
         name="0xAddress" // name it something other than address for auto fill doxxing
         autoComplete="off"
+        disabled={props.disabled}
         autoFocus={props.autoFocus}
         placeholder={props.placeholder ? props.placeholder : "address"}
         prefix={<Blockie address={currentValue} size={8} scale={3} />}
