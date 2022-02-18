@@ -22,13 +22,14 @@ export default function Transactions({
   readContracts,
   writeContracts,
   blockExplorer,
+  userSigner,
 }) {
   const [transactions, setTransactions] = useState();
   usePoller(() => {
     const getTransactions = async () => {
       if (true) console.log("🛰 Requesting Transaction List");
       const res = await axios.get(
-        poolServerUrl + readContracts[contractName].address + "_" + localProvider._network.chainId,
+        poolServerUrl + readContracts[contractName]?.address + "_" + localProvider._network.chainId,
       );
       const newTransactions = [];
       for (const i in res.data) {
@@ -104,7 +105,7 @@ export default function Transactions({
         renderItem={item => {
           console.log("ITE88888M", item);
 
-          const hasSigned = item.signers.indexOf(address) >= 0;
+          const hasSigned = item.signers.indexOf(userSigner?.address) >= 0;
           const hasEnoughSignatures = item.signatures.length <= signaturesRequired.toNumber();
 
           return (
@@ -118,13 +119,14 @@ export default function Transactions({
 
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
-                    item.to,
+                    item.data == "0x" ? item.to : item.address,
                     ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
                   console.log("newHash", newHash);
 
-                  const signature = await userProvider.send("personal_sign", [newHash, address]);
+
+                  const signature = await userSigner.signMessage(ethers.utils.arrayify(newHash));
                   console.log("signature", signature);
 
                   const recover = await readContracts[contractName].recover(newHash, signature);
@@ -148,6 +150,7 @@ export default function Transactions({
                   // tx( writeContracts[contractName].executeTransaction(item.to,parseEther(""+parseFloat(item.amount).toFixed(12)), item.data, item.signatures))
                 }}
                 type="secondary"
+                disabled={hasSigned}
               >
                 Sign
               </Button>
@@ -158,7 +161,7 @@ export default function Transactions({
                 onClick={async () => {
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
-                    item.to,
+                    item.data == "0x" ? item.to : item.address,
                     ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
@@ -170,7 +173,7 @@ export default function Transactions({
 
                   tx(
                     writeContracts[contractName].executeTransaction(
-                      item.to,
+                      item.data == "0x" ? item.to : item.address,
                       ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                       item.data,
                       finalSigList,

@@ -47,6 +47,7 @@ export default function EtherInput(props) {
       autoFocus={props.autoFocus}
       prefix={mode === "USD" ? "$" : "Ξ"}
       value={display}
+      disabled={props.disabled}
       addonAfter={
         !props.price ? (
           ""

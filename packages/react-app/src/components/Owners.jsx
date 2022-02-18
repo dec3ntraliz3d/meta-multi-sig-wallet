@@ -20,7 +20,7 @@ export default function Owners({
     const ownersArrayLength = await readContracts[contractName]?.ownersArrayLength()
     console.log("ownersArrayLength", ownersArrayLength)
     let _owners = [];
-    for (let index = 0; index < ownersArrayLength.toNumber(); index++) {
+    for (let index = 0; index < ownersArrayLength?.toNumber(); index++) {
       const owner = await readContracts[contractName]?.owners(index)
       const isOwner = await readContracts[contractName]?.isOwner(owner)
       isOwner && _owners.push(owner)
@@ -51,15 +51,15 @@ export default function Owners({
                 address={item}
                 ensProvider={mainnetProvider}
                 blockExplorer={blockExplorer}
-                fontSize={32}
+                fontSize={24}
               />
-
+              {/* 
 
               <div
                 style={{ padding: 16 }}
               >
                 {"👍"}
-              </div>
+              </div> */}
             </List.Item>
           )
         }}

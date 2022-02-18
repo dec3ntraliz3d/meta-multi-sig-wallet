@@ -67,7 +67,6 @@ export default function Transactor(
 
       try {
         let result;
-        console.log("Sabbir TX", tx)
         if (tx instanceof Promise) {
           if (DEBUG) console.log("AWAITING TX", tx);
           result = await tx;

@@ -35,6 +35,8 @@ contract MetaMultiSigWallet {
 
     // state variable (hint mapping) to check if an address is a owner
     mapping(address => bool) public isOwner;
+    // Keep track of owners
+    address[] public owners;
 
     // state variable to store # of signature required.
     uint256 public signaturesRequired;
@@ -61,6 +63,7 @@ contract MetaMultiSigWallet {
             require(owner != address(0), "zero address can't be owner");
             require(isOwner[owner] != true, "Duplicate owners in list ");
             isOwner[owner] = true;
+            owners.push(owner);
             emit Owner(owner, isOwner[owner]);
         }
         chainId = _chainId;
@@ -81,7 +84,9 @@ contract MetaMultiSigWallet {
         require(newSignaturesRequired > 0, "Non zero signature required");
         require(isOwner[newSigner] != true, "Owner exsists");
         isOwner[newSigner] = true;
+        owners.push(newSigner);
         signaturesRequired = newSignaturesRequired;
+
         emit Owner(newSigner, isOwner[newSigner]);
     }
 
@@ -142,16 +147,21 @@ contract MetaMultiSigWallet {
                 recoveredAddress > duplicateGuard,
                 "executeTransaction: duplicate or unordered signatures"
             );
+            console.log(recoveredAddress);
             duplicateGuard = recoveredAddress;
             if (isOwner[recoveredAddress] == true) {
                 validSignatures++;
             }
         }
+        console.log("validSignatures", validSignatures);
 
         require(
             validSignatures >= signaturesRequired,
             " not enough valid signatures"
         );
+
+        console.log("to", to);
+        console.log("value", value);
 
         // execute transaction
         (bool success, bytes memory result) = to.call{value: value}(data);
@@ -178,6 +188,10 @@ contract MetaMultiSigWallet {
     {
         // recover address from signed message _hash and signature
         return _hash.toEthSignedMessageHash().recover(_signature);
+    }
+
+    function ownersArrayLength() public view returns (uint256) {
+        return owners.length;
     }
 
     receive() external payable {
