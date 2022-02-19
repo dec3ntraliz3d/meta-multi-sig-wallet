@@ -35,8 +35,11 @@ contract MetaMultiSigWallet {
 
     // state variable (hint mapping) to check if an address is a owner
     mapping(address => bool) public isOwner;
-    // Keep track of owners
+    // Keep track of owners address
     address[] public owners;
+
+    //keep track of active owners
+    uint256 public numberOfOwners;
 
     // state variable to store # of signature required.
     uint256 public signaturesRequired;
@@ -64,6 +67,7 @@ contract MetaMultiSigWallet {
             require(isOwner[owner] != true, "Duplicate owners in list ");
             isOwner[owner] = true;
             owners.push(owner);
+            numberOfOwners++;
             emit Owner(owner, isOwner[owner]);
         }
         chainId = _chainId;
@@ -71,6 +75,11 @@ contract MetaMultiSigWallet {
 
     modifier onlySelf() {
         require(msg.sender == address(this), "Not self");
+        _;
+    }
+
+    modifier minimumOwners() {
+        require(numberOfOwners > 1, "Atleast one owner is required");
         _;
     }
 
@@ -85,6 +94,7 @@ contract MetaMultiSigWallet {
         require(isOwner[newSigner] != true, "Owner exsists");
         isOwner[newSigner] = true;
         owners.push(newSigner);
+        numberOfOwners++;
         signaturesRequired = newSignaturesRequired;
 
         emit Owner(newSigner, isOwner[newSigner]);
@@ -93,11 +103,13 @@ contract MetaMultiSigWallet {
     function removeSigner(address oldSigner, uint256 newSignaturesRequired)
         public
         onlySelf
+        minimumOwners
     {
         require(isOwner[oldSigner] == true, "Owner doesn't exist");
         require(newSignaturesRequired > 0, "Non zero sig required");
         signaturesRequired = newSignaturesRequired;
         isOwner[oldSigner] = false;
+        numberOfOwners--;
         emit Owner(oldSigner, isOwner[oldSigner]);
     }
 

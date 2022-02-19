@@ -14,7 +14,6 @@ export default function Transactions({
   signaturesRequired,
   address,
   nonce,
-  userProvider,
   mainnetProvider,
   localProvider,
   price,
@@ -23,7 +22,10 @@ export default function Transactions({
   writeContracts,
   blockExplorer,
   userSigner,
+
 }) {
+
+
   const [transactions, setTransactions] = useState();
   usePoller(() => {
     const getTransactions = async () => {
@@ -105,7 +107,7 @@ export default function Transactions({
         renderItem={item => {
           console.log("ITE88888M", item);
 
-          const hasSigned = item.signers.indexOf(userSigner?.address) >= 0;
+          const hasSigned = item.signers.indexOf(address) >= 0;
           const hasEnoughSignatures = item.signatures.length <= signaturesRequired.toNumber();
 
           return (
@@ -126,7 +128,7 @@ export default function Transactions({
                   console.log("newHash", newHash);
 
 
-                  const signature = await userSigner.signMessage(ethers.utils.arrayify(newHash));
+                  const signature = await userSigner?.signMessage(ethers.utils.arrayify(newHash));
                   console.log("signature", signature);
 
                   const recover = await readContracts[contractName].recover(newHash, signature);
@@ -147,7 +149,6 @@ export default function Transactions({
                     });
                   }
 
-                  // tx( writeContracts[contractName].executeTransaction(item.to,parseEther(""+parseFloat(item.amount).toFixed(12)), item.data, item.signatures))
                 }}
                 type="secondary"
                 disabled={hasSigned}

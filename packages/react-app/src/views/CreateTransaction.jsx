@@ -19,7 +19,8 @@ export default function CreateTransaction({
   readContracts,
   userSigner,
   blockExplorer,
-  signaturesRequired
+  signaturesRequired,
+
 }) {
   const history = useHistory();
 
@@ -95,15 +96,6 @@ export default function CreateTransaction({
 
       <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
         <div style={{ margin: 8 }}>
-          {/* <div style={inputStyle}>
-            <Input
-              prefix="#"
-              disabled
-              value={customNonce}
-              placeholder={"" + (nonce ? nonce.toNumber() : "loading...")}
-              onChange={setCustomNonce}
-            />
-          </div> */}
           <div style={{ margin: 8, padding: 8 }}>
             <Select value={methodName} disabled={selectDisabled} style={{ width: "100%" }} onChange={setMethodName}>
               <Option key="transferFunds">Transfer </Option>
@@ -144,6 +136,7 @@ export default function CreateTransaction({
 
           {!selectDisabled && <Button
             style={{ marginTop: 32 }}
+            type="primary"
             onClick={() => {
               setSelectDisabled(true)
             }}

@@ -25,7 +25,7 @@ import {
   FaucetHint,
   NetworkSwitch,
 } from "./components";
-import { NETWORKS, ALCHEMY_KEY } from "./constants";
+import { NETWORKS, ALCHEMY_KEY, } from "./constants";
 import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
@@ -119,6 +119,9 @@ function App(props) {
   // Use your injected provider from 🦊 Metamask or if you don't have it then instantly generate a 🔥 burner wallet.
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider, USE_BURNER_WALLET);
   const userSigner = userProviderAndSigner.signer;
+  console.log("userSigner", userSigner)
+
+
 
   useEffect(() => {
     async function getAddress() {
@@ -281,9 +284,6 @@ function App(props) {
         <Menu.Item key="/">
           <Link to="/">Multisig</Link>
         </Menu.Item>
-        {/* <Menu.Item key="/owners">
-          <Link to="/owners">Owners</Link>
-        </Menu.Item> */}
         <Menu.Item key="/create">
           <Link to="/create">Create</Link>
         </Menu.Item>
@@ -330,15 +330,7 @@ function App(props) {
             contractConfig={contractConfig}
           />
         </Route>
-        {/* <Route path="/owners">
-          <Owners
 
-            mainnetProvider={mainnetProvider}
-            blockExplorer={blockExplorer}
-            readContracts={readContracts}
-            contractName={contractName}
-          />
-        </Route> */}
         <Route path="/create">
           <CreateTransaction
             poolServerUrl={poolServerUrl}
@@ -369,8 +361,7 @@ function App(props) {
             tx={tx}
             nonce={nonce}
             signaturesRequired={signaturesRequired}
-            userSigner={userSigner}
-            owners={owners}
+            address={address}
           />
         </Route>
         {/* <Route path="/subgraph">

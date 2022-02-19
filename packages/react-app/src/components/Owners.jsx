@@ -38,10 +38,14 @@ export default function Owners({
 
     <div>
       <h2 style={{ marginTop: 32 }}>
-        Signatures Required:{signaturesRequired ? signaturesRequired?.toString() : 0}
+        Signers
       </h2>
+      <h3 >
+        Signatures Required:{signaturesRequired ? signaturesRequired?.toString() : 0}
+      </h3>
+
       <List
-        style={{ maxWidth: 400, margin: "auto", marginTop: 32 }}
+        style={{ maxWidth: 300, margin: "auto", marginTop: 10 }}
         bordered
         dataSource={owners ? owners : ""}
         renderItem={(item) => {
@@ -51,15 +55,8 @@ export default function Owners({
                 address={item}
                 ensProvider={mainnetProvider}
                 blockExplorer={blockExplorer}
-                fontSize={24}
+                fontSize={20}
               />
-              {/* 
-
-              <div
-                style={{ padding: 16 }}
-              >
-                {"👍"}
-              </div> */}
             </List.Item>
           )
         }}
