@@ -5,9 +5,9 @@ import React from "react";
 
 export default function Header() {
   return (
-    <a href="https://github.com/austintgriffith/scaffold-eth" target="_blank" rel="noopener noreferrer">
+    <a href="https://github.com/dec3ntraliz3d/meta-multi-sig-wallet " target="_blank" rel="noopener noreferrer">
       <PageHeader
-        title="🏗 Meta-multisig-Wallet"
+        title="🏗 Meta-Multisig-Wallet"
         subTitle="by @dec3ntraliz3d"
         style={{ cursor: "pointer" }}
       />
