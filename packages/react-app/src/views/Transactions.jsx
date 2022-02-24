@@ -121,7 +121,7 @@ export default function Transactions({
 
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
-                    item.data == "0x" ? item.to : item.address,
+                    item.to,
                     ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
@@ -162,7 +162,7 @@ export default function Transactions({
                 onClick={async () => {
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
-                    item.data == "0x" ? item.to : item.address,
+                    item.to,
                     ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
@@ -174,7 +174,7 @@ export default function Transactions({
 
                   tx(
                     writeContracts[contractName].executeTransaction(
-                      item.data == "0x" ? item.to : item.address,
+                      item.to,
                       ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                       item.data,
                       finalSigList,

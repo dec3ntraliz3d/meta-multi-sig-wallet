@@ -25,11 +25,11 @@ const MultiSigTransactionListItem = function ({ item,
 
   const data = item?.args[3]
 
-  console.log("🔥🔥🔥🔥dog", item)
+
   let txnData;
   try {
     data != "0x" ? txnData = readContracts[contractName]?.interface?.parseTransaction({ data }) : txnData = "";
-    console.log("txnData", txnData)
+
 
 
   } catch (error) {

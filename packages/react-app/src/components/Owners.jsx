@@ -18,7 +18,6 @@ export default function Owners({
   const getOwners = async () => {
 
     const ownersArrayLength = await readContracts[contractName]?.ownersArrayLength()
-    console.log("ownersArrayLength", ownersArrayLength)
     let _owners = [];
     for (let index = 0; index < ownersArrayLength?.toNumber(); index++) {
       const owner = await readContracts[contractName]?.owners(index)

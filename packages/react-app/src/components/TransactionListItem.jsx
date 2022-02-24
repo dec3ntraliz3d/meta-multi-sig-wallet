@@ -48,7 +48,7 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
       >
         <p>
           <b>Event Name :&nbsp;</b>
-          {txnData != "" ? txnData?.functionFragment?.name : "Ttransfer Funds"}&nbsp;
+          {txnData != "" ? txnData?.functionFragment?.name : "Transfer Funds"}&nbsp;
         </p>
         <p>
           <b>Addressed to :&nbsp;</b>
