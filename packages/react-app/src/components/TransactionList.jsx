@@ -1,40 +1,36 @@
 import React, { useState } from "react";
 import { Button, List } from "antd";
-import { ethers } from "ethers";
 import { Address, Balance, Blockie, TransactionDetailsModal } from "../components";
 import { EllipsisOutlined } from "@ant-design/icons";
+import { parseEther } from "@ethersproject/units";
+import { ethers } from "ethers";
 
 
-const MultiSigTransactionListItem = function ({ item,
+const TransactionList = function ({
+  // item, 
+  txnData,  //parsed transaction data 
   mainnetProvider,
   blockExplorer,
   price,
-  readContracts,
-  contractName,
-  children }) {
+  transactionHash,
+  addressedTo,
+  nonce,
+  value,
+  children
+}) {
+
+  // Props thats needed to populate transaction
+
+  // parsedTransactionData, mainnet provider, price, hash, to, value
+
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [txnInfo, setTxnInfo] = useState(null);
 
   const showModal = () => {
     setIsModalVisible(true);
   };
-
   const handleOk = () => {
     setIsModalVisible(false);
   };
-
-  const data = item?.args[3]
-
-
-  let txnData;
-  try {
-    data != "0x" ? txnData = readContracts[contractName]?.interface?.parseTransaction({ data }) : txnData = "";
-
-
-
-  } catch (error) {
-    console.log("ERROR", error)
-  }
 
   return <>
     <TransactionDetailsModal
@@ -44,7 +40,7 @@ const MultiSigTransactionListItem = function ({ item,
       mainnetProvider={mainnetProvider}
       price={price}
     />
-    <List.Item key={item.args.hash} style={{ position: "relative" }}>
+    <List.Item key={transactionHash} style={{ position: "relative" }}>
       <div
         style={{
           position: "absolute",
@@ -59,19 +55,19 @@ const MultiSigTransactionListItem = function ({ item,
       >
         <p>
           <b>Event Name :&nbsp;</b>
-          {txnData ? txnData.functionFragment.name : "Transfer Funds"}&nbsp;
+          {txnData ? txnData?.functionFragment?.name : "Transfer Funds"}&nbsp;
         </p>
         <p>
           <b>Addressed to :&nbsp;</b>
-          {item.args.to}
+          {addressedTo}
         </p>
       </div>
-      {<b style={{ padding: 16 }}>#{typeof (item.args.nonce) === "number" ? item.args.nonce : item.args.nonce.toNumber()}</b>}
+      {<b style={{ padding: 16 }}>#{nonce}</b>}
       <span>
-        <Blockie size={4} scale={8} address={item.args.hash} /> {item.args.hash.substr(0, 6)}
+        <Blockie size={4} scale={8} address={transactionHash} /> {transactionHash.substr(0, 6)}
       </span>
-      <Address address={item.args.to} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={16} />
-      <Balance balance={item.args.value ? item.args.value : ethers.utils.parseEther("" + parseFloat(item.args.value).toFixed(12))} dollarMultiplier={price} />
+      <Address address={addressedTo} ensProvider={mainnetProvider} blockExplorer={blockExplorer} fontSize={16} />
+      <Balance balance={ethers.BigNumber.isBigNumber(value) ? value : parseEther("" + parseFloat(value).toFixed(12))} dollarMultiplier={price} />
       <>
         {
           children
@@ -84,7 +80,8 @@ const MultiSigTransactionListItem = function ({ item,
       </Button>
 
     </List.Item>
+
   </>
 };
-export default MultiSigTransactionListItem;
+export default TransactionList;
 

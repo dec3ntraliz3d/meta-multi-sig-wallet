@@ -9,6 +9,10 @@ export const BLOCKNATIVE_DAPPID = "853f540a-4758-4801-bfbf-d11a7280872b";
 
 export const ALCHEMY_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
 
+export const BACKEND_URL = "https://meta-multisig-backend.herokuapp.com/"
+// for local backend.
+//export const BACKEND_URL ="http://localhost:49832/"
+
 export const NETWORKS = {
   localhost: {
     name: "localhost",

@@ -11,11 +11,8 @@ const axios = require("axios");
 
 const WalletConnectInput = ({
   chainId,
-  address,
-  readContracts,
-  nonce,
-  userSigner
-
+  address, // Address of the wallet that will connect to dapp via wallet connect.
+  loadWalletConnectData // funtion passed from parent component to pass data,to,value, parsed transaction data.
 }) => {
 
   const [walletConnectConnector, setWalletConnectConnector] = useLocalStorage("walletConnectConnector")
@@ -26,8 +23,10 @@ const WalletConnectInput = ({
   const [to, setTo] = useState()
   const [value, setValue] = useState()
   const [id, setId] = useState()
-  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [isModalVisible, setIsModalVisible] = useLocalStorage("isModalVisible", false)
   const [parsedTransactionData, setParsedTransactionData] = useState()
+
+  const history = useHistory();
 
   useEffect(() => {
 
@@ -160,51 +159,55 @@ const WalletConnectInput = ({
   }
 
   useEffect(() => {
-
     if (data && to) {
       //decode function data 
       decodeFunctionData()
     }
-
   }, [data])
 
   const decodeFunctionData = async () => {
 
     // get contract ABI from Etherscan and update state variable
-    const abi = await getAbiFromEtherscan(to)
+    // then decode function data
+    try {
+      const abi = await getAbiFromEtherscan(to)
+      const iface = new ethers.utils.Interface(abi)
+      const parsedTransactionData = iface.parseTransaction({ data })
+      setParsedTransactionData(parsedTransactionData)
+    } catch (error) {
+      console.log(error)
+      setParsedTransactionData(null)
+    }
 
-    // decode function data 
-    const iface = new ethers.utils.Interface(abi)
-    const parsedTransactionData = iface.parseTransaction({ data })
-    setParsedTransactionData(parsedTransactionData)
-    console.log("parsedTransactionData", parsedTransactionData)
-
-    // Show Modal to a user to confirm propose transaction
     setIsModalVisible(true)
+
+
   }
-
-
-
   const hideModal = () => setIsModalVisible(false)
-
   const proposeTransaction = () => {
-    //call confirmTransaction on the parent component
+
+    // This function can be used to pass data to parent.
+    // When user confirms on the CallModal component this function get called.
     // provide calldata, value, to, 
     console.log("Transaction proposed")
-    console.log({ data, to, value })
+    loadWalletConnectData({
+      data,
+      to,
+      value,
+      txnData: parsedTransactionData
+    })
     // Pass values to parent to update parents data, to ,value
-
-
   }
-
   const cleanUp = () => {
     // Clean up local storage related to walletConnect
     //Set wc Uri to empty 
     // Set connector to null 
-    console.log("Do your cleanup here")
     setWalletConnectUri("")
     setIsConnected(false)
-    setWalletConnectConnector(undefined)
+    setWalletConnectConnector(null)
+    setData()
+    setValue()
+    setTo()
 
   }
 
@@ -249,12 +252,9 @@ const WalletConnectInput = ({
 
       </Button>
       }
-
-
     </div>
   )
 }
-
 export default WalletConnectInput
 
 

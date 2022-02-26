@@ -22,6 +22,7 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
   let txnData;
   try {
     item.data != "0x" ? txnData = readContracts[contractName].interface.parseTransaction(item) : txnData = "";
+    console.log({ txnData })
   } catch (error) {
     console.log("ERROR", error)
   }

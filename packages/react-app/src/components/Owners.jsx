@@ -1,4 +1,4 @@
-import { List, Select } from "antd";
+import { List, Select, Spin } from "antd";
 import { Address } from "../components";
 import { useContractReader } from "eth-hooks";
 import { useEffect, useState } from "react";
@@ -14,6 +14,7 @@ export default function Owners({
 }) {
 
   const [owners, setOwners] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const getOwners = async () => {
 
@@ -26,9 +27,12 @@ export default function Owners({
 
     }
     setOwners([... new Set(_owners)])
+    setIsLoading(false)
+
   }
 
   useEffect(() => {
+    setIsLoading(true)
     getOwners();
   }, []);
 
@@ -42,24 +46,25 @@ export default function Owners({
       <h3 >
         Signatures Required:{signaturesRequired ? signaturesRequired?.toString() : 0}
       </h3>
-
-      <List
-        style={{ maxWidth: 300, margin: "auto", marginTop: 10 }}
-        bordered
-        dataSource={owners ? owners : ""}
-        renderItem={(item) => {
-          return (
-            <List.Item key={item}>
-              <Address
-                address={item}
-                ensProvider={mainnetProvider}
-                blockExplorer={blockExplorer}
-                fontSize={20}
-              />
-            </List.Item>
-          )
-        }}
-      />
+      {isLoading ?
+        < Spin /> :
+        <List
+          style={{ maxWidth: 300, margin: "auto", marginTop: 10 }}
+          dataSource={owners ? owners : ""}
+          renderItem={(item) => {
+            return (
+              <List.Item key={item}>
+                <Address
+                  address={item}
+                  ensProvider={mainnetProvider}
+                  blockExplorer={blockExplorer}
+                  fontSize={20}
+                />
+              </List.Item>
+            )
+          }}
+        />
+      }
     </div>
   );
 }

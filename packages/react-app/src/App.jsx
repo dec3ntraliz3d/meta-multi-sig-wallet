@@ -5,7 +5,6 @@ import {
   useContractLoader,
   useContractReader,
   useGasPrice,
-  useOnBlock,
   useUserProviderAndSigner,
 } from "eth-hooks";
 import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
@@ -25,9 +24,9 @@ import {
   FaucetHint,
   NetworkSwitch,
 } from "./components";
-import { NETWORKS, ALCHEMY_KEY, } from "./constants";
+import { NETWORKS, ALCHEMY_KEY, BACKEND_URL } from "./constants";
 import externalContracts from "./contracts/external_contracts";
-// contracts
+
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
 import { MultiSig, CreateTransaction, Subgraph, Transactions } from "./views";
@@ -55,7 +54,7 @@ const { ethers } = require("ethers");
 */
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const initialNetwork = NETWORKS.kovan; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
 const DEBUG = false;
@@ -71,10 +70,6 @@ const providers = [
   `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`,
   "https://rpc.scaffoldeth.io:48544",
 ];
-
-// const poolServerUrl = "https://backend.multisig.holdings:49832/"
-// const poolServerUrl = "https://meta-multisig-backend.herokuapp.com/"
-const poolServerUrl = "http://localhost:49832/"
 
 function App(props) {
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
@@ -187,8 +182,6 @@ function App(props) {
   const signaturesRequired = useContractReader(readContracts, contractName, "signaturesRequired")
 
 
-
-
   /*
   const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
   console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
@@ -264,16 +257,6 @@ function App(props) {
 
   const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
 
-  //wallet connect client related code
-
-  // 1. get wallet connect url . Either via a scanner or pasting wc url from any dapp.
-  // 2. With the wallet connect url connect to the dapp. 
-  // 2.a useEffect keep track of wallet connect url changes.
-  //2.b. connectWallet function is called when wc url change. 
-
-
-
-
   return (
     <div className="App">
       {/* ✏️ Edit the header and change the title to your project name */}
@@ -339,7 +322,7 @@ function App(props) {
 
         <Route path="/create">
           <CreateTransaction
-            poolServerUrl={poolServerUrl}
+            poolServerUrl={BACKEND_URL}
             contractName={contractName}
             mainnetProvider={mainnetProvider}
             localProvider={localProvider}
@@ -356,7 +339,7 @@ function App(props) {
         </Route>
         <Route path="/pool">
           <Transactions
-            poolServerUrl={poolServerUrl}
+            poolServerUrl={BACKEND_URL}
             readContracts={readContracts}
             writeContracts={writeContracts}
             localProvider={localProvider}

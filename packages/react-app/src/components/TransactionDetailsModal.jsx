@@ -2,7 +2,9 @@ import React from "react";
 import { Modal } from "antd";
 import Address from "./Address";
 import Balance from "./Balance";
-const TransactionDetailsModal = function ({visible, handleOk, mainnetProvider, price, txnInfo = null}) {
+import { ethers } from "ethers";
+const TransactionDetailsModal = function ({ visible, handleOk, mainnetProvider, price, txnInfo = null }) {
+
   return (
     <Modal
       title="Transaction Details"
@@ -35,7 +37,19 @@ const TransactionDetailsModal = function ({visible, handleOk, mainnetProvider, p
             if (element.type === "uint256") {
               return (
                 <p key={element.name}>
-                  {element.name === "value" ? <><b>{element.name} : </b> <Balance fontSize={16} balance={txnInfo.args[index]} dollarMultiplier={price} /> </> : <><b>{element.name} : </b> {txnInfo.args[index] && txnInfo.args[index].toNumber()}</>}
+                  {element.name === "value" ?
+                    <><b>{element.name} : </b>
+                      <Balance
+                        fontSize={16}
+                        balance={ethers.BigNumber.from(txnInfo.args[index])}
+                        dollarMultiplier={price}
+                      />
+                    </> :
+                    <>
+                      <b>{element.name} : </b>
+                      {txnInfo.args[index] && ethers.BigNumber.from(txnInfo.args[index]).toString()}
+                    </>
+                  }
                 </p>
               );
             }

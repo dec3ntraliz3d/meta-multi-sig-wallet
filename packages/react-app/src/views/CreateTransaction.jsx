@@ -6,7 +6,6 @@ import { useContractReader } from "eth-hooks";
 import { useLocalStorage } from "../hooks";
 import { ethers } from "ethers";
 import { WalletConnectInput } from "../components";
-
 const { Option } = Select;
 
 const axios = require("axios");
@@ -38,6 +37,8 @@ export default function CreateTransaction({
   const [transferTo, setTransferTo] = useLocalStorage("transferTo")
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState()
+  const [txnData, setTxnData] = useState()
+  const [isWalletConnectTransaction, setIsWalletConnectTransaction] = useState()
 
 
 
@@ -46,26 +47,51 @@ export default function CreateTransaction({
   };
 
 
-  const updateCustomCallData = ({ to, value, data }) => {
+  const loadWalletConnectData = ({ to, value, data, txnData }) => {
 
     setTo(to)
-    setAmount(ethers.utils.formatEther(value))
+    value ? setAmount(ethers.utils.formatEther(value)) : setAmount("0.0")
     setData(data)
+    setTxnData(txnData)
+    setIsWalletConnectTransaction(true)
+
+  }
+
+  useEffect(() => {
+    isWalletConnectTransaction && confirmTransaction()
+    setIsWalletConnectTransaction(false)
+  }, [data])
+
+  const createTransactionData = () => {
+    setSelectDisabled(true)
+
+    if (methodName == "transferFunds") {
+      console.log("methodName", methodName)
+      setTo(transferTo)
+      setData("0x")
+      setTxnData(null)
+      return
+    }
+    setTo(multiSigContractAddress)
+    const functionData = readContracts[contractName]?.interface?.encodeFunctionData(methodName, [signer, newSignaturesRequired])
+    setData(functionData)
+    const decodedTxnData = readContracts[contractName]?.interface?.parseTransaction({ data: functionData })
+    setTxnData(decodedTxnData)
+
   }
 
   // When user confirms transaction, details are sent to backend.
   const confirmTransaction = async () => {
 
     setLoading(true)
-    let callData;
-    methodName == "transferFunds" ? callData = "0x" :
-      callData = readContracts[contractName]?.interface?.encodeFunctionData(methodName, [signer, newSignaturesRequired])
+    console.log("confirmTransaction")
+    console.log({ nonce, to, amount, data, txnData })
 
     const newHash = await readContracts?.MetaMultiSigWallet?.getTransactionHash(
       nonce.toNumber(),
       to,
       ethers.utils.parseEther("" + parseFloat(amount).toFixed(12)),
-      data ? data : callData,
+      data ,
     );
 
     const signature = await userSigner?.signMessage(ethers.utils.arrayify(newHash))
@@ -84,7 +110,8 @@ export default function CreateTransaction({
         nonce: nonce.toNumber(),
         to,
         amount,
-        data: data ? data : callData,
+        data,
+        txnData,
         hash: newHash,
         signatures: [signature],
         signers: [recover],
@@ -101,16 +128,10 @@ export default function CreateTransaction({
     }
   }
 
-  useEffect(() => {
-    console.log("Addressed to:", to)
-
-  }, [to])
-
-
   return (
     <div>
 
-      <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64, marginBottom: 20 }}>
+      <div style={{ padding: 16, width: 400, margin: "auto", marginTop: 64, marginBottom: 20 }}>
         <div style={{ margin: 8 }}>
           <div style={{ margin: 8, padding: 8 }}>
             <Select value={methodName} disabled={selectDisabled} style={{ width: "100%" }} onChange={setMethodName}>
@@ -143,7 +164,6 @@ export default function CreateTransaction({
                 onChange={setTransferTo}
               />
 
-
             }
 
           </div>
@@ -171,10 +191,7 @@ export default function CreateTransaction({
           {!selectDisabled && <Button
             style={{ marginTop: 32 }}
             type="primary"
-            onClick={() => {
-              setSelectDisabled(true)
-              methodName == "transferFunds" ? setTo(transferTo) : setTo(multiSigContractAddress);
-            }}
+            onClick={createTransactionData}
 
           > Create
           </Button>
@@ -209,7 +226,8 @@ export default function CreateTransaction({
         nonce={nonce}
         readContracts={readContracts}
         userSigner={userSigner}
-        nonce={nonce} />
+        nonce={nonce}
+        loadWalletConnectData={loadWalletConnectData} />
       <Owners
         signaturesRequired={signaturesRequired}
         mainnetProvider={mainnetProvider}

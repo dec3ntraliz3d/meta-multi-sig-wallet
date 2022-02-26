@@ -12,8 +12,6 @@ const CalldataModal = ({
     appIcon
 }) => {
 
-    parsedTransactionData && console.log("CalldDataModal-> parsedTransactionData", parsedTransactionData)
-
     return (
         <Modal
 
@@ -23,10 +21,7 @@ const CalldataModal = ({
 
                 hideModal()
                 proposeTransaction()
-
-
             }}
-            //confirmLoading={confirmLoading}
             onCancel={hideModal}
         >
             <div>
@@ -36,15 +31,11 @@ const CalldataModal = ({
                 />
             </div>
             <p>{appUrl}</p>
-            <p>name:{parsedTransactionData.name}<br />
-                sighash:{parsedTransactionData.sighash}<br />
-                signature:{parsedTransactionData.signature}<br />
-                value:{ethers.utils.formatEther(value)}<br />
+            <p>name:{parsedTransactionData?.name}<br />
+                sighash:{parsedTransactionData?.sighash}<br />
+                signature:{parsedTransactionData?.signature}<br />
+                value:{value ? ethers.utils.formatEther(value) : "0.0"}<br />
                 data:{data}</p>
-            {/* <p>{parsedTransactionData}</p> */}
-            {/* functionFragment?.name */}
-            {/* Value  */}
-
 
         </Modal>
 
