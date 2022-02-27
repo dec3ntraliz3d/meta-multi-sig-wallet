@@ -50,6 +50,7 @@ export default function Owners({
         < Spin /> :
         <List
           style={{ maxWidth: 300, margin: "auto", marginTop: 10 }}
+          bordered
           dataSource={owners ? owners : ""}
           renderItem={(item) => {
             return (

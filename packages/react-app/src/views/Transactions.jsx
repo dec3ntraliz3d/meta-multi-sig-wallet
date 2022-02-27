@@ -25,7 +25,6 @@ export default function Transactions({
 
 }) {
 
-
   const [transactions, setTransactions] = useState();
   usePoller(() => {
     const getTransactions = async () => {

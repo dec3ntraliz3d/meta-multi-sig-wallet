@@ -17,13 +17,17 @@ const WalletConnectInput = ({
 
   const [walletConnectConnector, setWalletConnectConnector] = useLocalStorage("walletConnectConnector")
   const [walletConnectUri, setWalletConnectUri] = useLocalStorage("walletConnectUri", "")
+  //const [walletConnectUri, setWalletConnectUri] = useState("")
   const [isConnected, setIsConnected] = useLocalStorage("isConnected", false)
+  //const [isConnected, setIsConnected] = useState(false)
   const [peerMeta, setPeerMeta] = useLocalStorage("peerMeta")
+  //const [peerMeta, setPeerMeta] = useState()
+
   const [data, setData] = useState()
   const [to, setTo] = useState()
   const [value, setValue] = useState()
   const [id, setId] = useState()
-  const [isModalVisible, setIsModalVisible] = useLocalStorage("isModalVisible", false)
+  const [isModalVisible, setIsModalVisible] = useState(false)
   const [parsedTransactionData, setParsedTransactionData] = useState()
 
   const history = useHistory();
@@ -38,6 +42,8 @@ const WalletConnectInput = ({
   }, [walletConnectUri])
 
   const initiateAndSubscribe = () => {
+
+
     // Create connector
     const connector = new WalletConnect(
       {
@@ -73,6 +79,8 @@ const WalletConnectInput = ({
         ],
         chainId            // required
       })
+
+
       if (connector.connected) {
         setIsConnected(true)
         console.log("Session successfully connected.")
@@ -95,6 +103,7 @@ const WalletConnectInput = ({
       }
       */
     });
+
 
     // Subscribe to call requests
     connector.on("call_request", (error, payload) => {
@@ -133,6 +142,7 @@ const WalletConnectInput = ({
 
     });
 
+    console.log("connector", connector)
     setWalletConnectConnector(connector)
 
   }
@@ -141,6 +151,8 @@ const WalletConnectInput = ({
 
     console.log("ACTION", "killSession")
     // Kill Session
+    setIsConnected(false)
+    setWalletConnectUri("")
 
     if (walletConnectConnector.connected) {
       walletConnectConnector.killSession()
@@ -252,6 +264,18 @@ const WalletConnectInput = ({
 
       </Button>
       }
+
+      {/* {!isConnected && <Button
+        style={{ marginTop: 20 }}
+        onClick={() => {
+          setIsConnected(true)
+        }}
+        type="primary"
+      >
+        Connect
+
+      </Button>
+      } */}
     </div>
   )
 }
