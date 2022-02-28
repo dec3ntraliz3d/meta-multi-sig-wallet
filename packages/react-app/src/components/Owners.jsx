@@ -1,8 +1,6 @@
 import { List, Select, Spin } from "antd";
 import { Address } from "../components";
-import { useContractReader } from "eth-hooks";
 import { useEffect, useState } from "react";
-const { Option } = Select;
 export default function Owners({
 
   signaturesRequired,
@@ -14,31 +12,29 @@ export default function Owners({
 }) {
 
   const [owners, setOwners] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
-
+  const [isLoaded, setIsLoaded] = useState(false)
   const getOwners = async () => {
 
     const ownersArrayLength = await readContracts[contractName]?.ownersArrayLength()
-    let _owners = [];
+    let owners = [];
     for (let index = 0; index < ownersArrayLength?.toNumber(); index++) {
       const owner = await readContracts[contractName]?.owners(index)
       const isOwner = await readContracts[contractName]?.isOwner(owner)
-      isOwner && _owners.push(owner)
+      isOwner && owners.push(owner)
 
     }
-    setOwners([... new Set(_owners)])
-    setIsLoading(false)
-
+    return owners
   }
 
   useEffect(() => {
-    setIsLoading(true)
-    getOwners();
+
+    getOwners().then((owners) => {
+      setIsLoaded(true)
+      setOwners(owners)
+    })
   }, []);
 
-
   return (
-
     <div>
       <h2 style={{ marginTop: 32 }}>
         Signers
@@ -46,12 +42,11 @@ export default function Owners({
       <h3 >
         Signatures Required:{signaturesRequired ? signaturesRequired?.toString() : 0}
       </h3>
-      {isLoading ?
-        < Spin /> :
+      {isLoaded ?
         <List
           style={{ maxWidth: 300, margin: "auto", marginTop: 10 }}
           bordered
-          dataSource={owners ? owners : ""}
+          dataSource={owners}
           renderItem={(item) => {
             return (
               <List.Item key={item}>
@@ -64,7 +59,8 @@ export default function Owners({
               </List.Item>
             )
           }}
-        />
+        /> :
+        < Spin />
       }
     </div>
   );

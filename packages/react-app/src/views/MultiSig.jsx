@@ -17,39 +17,39 @@ function MultiSig({
   readContracts
 }) {
   const [events, setEvents] = useState([])
-  const [isLoading, setIsLoading] = useState()
+  const [isLoaded, setIsLoaded] = useState(false)
 
-  const decodeFunctionData = async (to, data) => {
+  const parseTransactionData = async (to, data) => {
 
     if (data == "0x")
       return null
     if (to == contractAddress)
       return (readContracts[contractName]?.interface?.parseTransaction({ data }))
     try {
+
       // if parseTransaction fails set txnData/decoded function data to null.
       const abi = await getAbiFromEtherscan(to)
       const iface = new ethers.utils.Interface(abi)
-      const parsedTransactionData = iface.parseTransaction({ data })
-      return parsedTransactionData
+      return (iface.parseTransaction({ data }))
+
     } catch {
       return null
     }
   }
   const updateEvents = async () => {
     const updatedEvents = await Promise.all(executeTransactionEvents.map(async (item) => {
-      const txnData = await decodeFunctionData(item.args.to, item.args.data)
-      // update event object with decoded function data txnData
+      const txnData = await parseTransactionData(item.args.to, item.args.data)
       return { ...item, txnData }
     }))
-
-    setEvents(updatedEvents)
-    setIsLoading(false)
+    return (updatedEvents)
   }
   useEffect(() => {
-    setIsLoading(true)
-    // Call update events on page load and new events.
-    updateEvents();
+    updateEvents().then((newEvents) => {
+      setIsLoaded(true)
+      setEvents(newEvents)
+    });
   }, [])
+
   return (
     <div style={{ padding: 32, maxWidth: 750, margin: "auto" }}>
       <div style={{ paddingBottom: 32 }}>
@@ -77,12 +77,9 @@ function MultiSig({
           />
         </div>
       </div>
-      {isLoading ?
 
-        <Spin /> :
-
+      {isLoaded ?
         <List
-
           dataSource={events.reverse()}
           renderItem={item => {
             return (
@@ -100,7 +97,8 @@ function MultiSig({
               </>
             );
           }}
-        />
+        /> :
+        <Spin />
       }
     </div>
   );
