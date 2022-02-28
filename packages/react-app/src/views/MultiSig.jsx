@@ -46,7 +46,7 @@ function MultiSig({
   useEffect(() => {
     updateEvents().then((newEvents) => {
       setIsLoaded(true)
-      setEvents(newEvents)
+      setEvents(newEvents.reverse())
     });
   }, [])
 
@@ -80,7 +80,7 @@ function MultiSig({
 
       {isLoaded ?
         <List
-          dataSource={events.reverse()}
+          dataSource={events}
           renderItem={item => {
             return (
               <>
