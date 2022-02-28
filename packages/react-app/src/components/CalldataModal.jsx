@@ -15,10 +15,9 @@ const CalldataModal = ({
     return (
         <Modal
 
-            title="Propose Transaction ?"
+            title="Accept Transaction ?"
             visible={isModalVisible}
             onOk={() => {
-
                 hideModal()
                 handleOk()
             }}
@@ -34,7 +33,7 @@ const CalldataModal = ({
             <p>name:{parsedTransactionData?.name}<br />
                 sighash:{parsedTransactionData?.sighash}<br />
                 signature:{parsedTransactionData?.signature}<br />
-                value:{value ? ethers.utils.formatEther(value) : "0.0"}<br />
+                value:{value ? ethers.utils.formatEther(value) : ""}<br />
                 data:{data}</p>
 
         </Modal>
