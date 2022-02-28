@@ -37,7 +37,7 @@ export default function CreateTransaction({
   const [transferTo, setTransferTo] = useLocalStorage("transferTo")
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState()
-  const [txnData, setTxnData] = useState()
+  const [parsedTxnData, setParsedTxnData] = useState()
   const [isWalletConnectTransaction, setIsWalletConnectTransaction] = useState()
 
 
@@ -47,12 +47,12 @@ export default function CreateTransaction({
   };
 
 
-  const loadWalletConnectData = ({ to, value, data, txnData }) => {
+  const loadWalletConnectData = ({ to, value, data, parsedTxnData }) => {
 
     setTo(to)
     value ? setAmount(ethers.utils.formatEther(value)) : setAmount("0.0")
     setData(data)
-    setTxnData(txnData)
+    setParsedTxnData(parsedTxnData)
     setIsWalletConnectTransaction(true)
 
   }
@@ -69,14 +69,14 @@ export default function CreateTransaction({
       console.log("methodName", methodName)
       setTo(transferTo)
       setData("0x")
-      setTxnData(null)
+      setParsedTxnData(null)
       return
     }
     setTo(multiSigContractAddress)
     const functionData = readContracts[contractName]?.interface?.encodeFunctionData(methodName, [signer, newSignaturesRequired])
     setData(functionData)
     const decodedTxnData = readContracts[contractName]?.interface?.parseTransaction({ data: functionData })
-    setTxnData(decodedTxnData)
+    setParsedTxnData(decodedTxnData)
 
   }
 
@@ -85,7 +85,7 @@ export default function CreateTransaction({
 
     setLoading(true)
     console.log("confirmTransaction")
-    console.log({ nonce, to, amount, data, txnData })
+    console.log({ nonce, to, amount, data, parsedTxnData })
 
     const newHash = await readContracts?.MetaMultiSigWallet?.getTransactionHash(
       nonce.toNumber(),
@@ -111,7 +111,7 @@ export default function CreateTransaction({
         to,
         amount,
         data,
-        txnData,
+        parsedTxnData,
         hash: newHash,
         signatures: [signature],
         signers: [recover],

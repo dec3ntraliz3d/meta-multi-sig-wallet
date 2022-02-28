@@ -107,7 +107,7 @@ export default function Transactions({
 
           return (
             <TransactionList
-              txnData={item.txnData}
+              parsedTxnData={item.parsedTxnData}
               mainnetProvider={mainnetProvider}
               blockExplorer={blockExplorer}
               price={price}

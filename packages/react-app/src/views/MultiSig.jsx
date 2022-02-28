@@ -27,7 +27,7 @@ function MultiSig({
       return (readContracts[contractName]?.interface?.parseTransaction({ data }))
     try {
 
-      // if parseTransaction fails set txnData/decoded function data to null.
+      // if parseTransaction fails set parsedTxnData/decoded function data to null.
       const abi = await getAbiFromEtherscan(to)
       const iface = new ethers.utils.Interface(abi)
       return (iface.parseTransaction({ data }))
@@ -38,8 +38,8 @@ function MultiSig({
   }
   const updateEvents = async () => {
     const updatedEvents = await Promise.all(executeTransactionEvents.map(async (item) => {
-      const txnData = await parseTransactionData(item.args.to, item.args.data)
-      return { ...item, txnData }
+      const parsedTxnData = await parseTransactionData(item.args.to, item.args.data)
+      return { ...item, parsedTxnData }
     }))
     return (updatedEvents)
   }
@@ -85,7 +85,7 @@ function MultiSig({
             return (
               <>
                 <TransactionList
-                  txnData={item.txnData}
+                  parsedTxnData={item.parsedTxnData}
                   mainnetProvider={mainnetProvider}
                   blockExplorer={blockExplorer}
                   price={price}

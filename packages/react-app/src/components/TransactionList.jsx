@@ -8,7 +8,7 @@ import { ethers } from "ethers";
 
 const TransactionList = function ({
   // item, 
-  txnData,  //parsed transaction data 
+  parsedTxnData,  //parsed transaction data 
   mainnetProvider,
   blockExplorer,
   price,
@@ -35,7 +35,7 @@ const TransactionList = function ({
   return <>
     <TransactionDetailsModal
       visible={isModalVisible}
-      txnInfo={txnData}
+      txnInfo={parsedTxnData}
       handleOk={handleOk}
       mainnetProvider={mainnetProvider}
       price={price}
@@ -55,7 +55,7 @@ const TransactionList = function ({
       >
         <p>
           <b>Event Name :&nbsp;</b>
-          {txnData ? txnData?.functionFragment?.name : "Transfer Funds"}&nbsp;
+          {parsedTxnData ? parsedTxnData?.functionFragment?.name : "Transfer Funds"}&nbsp;
         </p>
         <p>
           <b>Addressed to :&nbsp;</b>
