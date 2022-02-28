@@ -16,7 +16,6 @@ const WalletConnectInput = ({
   const [walletConnectUri, setWalletConnectUri] = useLocalStorage("walletConnectUri", "")
   const [isConnected, setIsConnected] = useLocalStorage("isConnected", false)
   const [peerMeta, setPeerMeta] = useLocalStorage("peerMeta")
-
   const [data, setData] = useState()
   const [to, setTo] = useState()
   const [value, setValue] = useState()
@@ -25,23 +24,26 @@ const WalletConnectInput = ({
   const [parsedTransactionData, setParsedTransactionData] = useState()
 
   useEffect(() => {
-
-    // If walletconnect URI is not empty , initiate wallet connection
     if (walletConnectUri) {
-      initiateAndSubscribe()
+      setupAndSubscribe()
     }
-
   }, [walletConnectUri])
 
-  const initiateAndSubscribe = () => {
+
+  const setupAndSubscribe = () => {
+    const connector = setupConnector()
+    if (connector) {
+      subscribeToEvents(connector)
+      setWalletConnectConnector(connector)
+    }
+  }
+
+  const setupConnector = () => {
     let connector;
     try {
-      // Create connector
       connector = new WalletConnect(
         {
-          // Required
           uri: walletConnectUri,
-          // Required
           clientMeta: {
             description: "Multisig Wallet",
             url: "https://multisig-kovan.surge.sh",
@@ -51,82 +53,44 @@ const WalletConnectInput = ({
         },
 
       );
+      return connector
 
     } catch (error) {
 
-      // If wallet connect URI is invalid . Show error message and set uri to ""
       alert(error)
       setWalletConnectUri("")
-      return
-
+      return connector
     }
+  }
 
-    // Subscribe to session requests
+  const subscribeToEvents = (connector) => {
+
     connector.on("session_request", (error, payload) => {
       if (error) {
         throw error;
       }
-
-      // Handle Session Request
       console.log("Event: session_request", payload)
-
-      // Get peer metadata from params[0] and update state
       setPeerMeta(payload.params[0].peerMeta)
 
-      //Automatically accept session_request from Dapp. 
       connector.approveSession({
-        accounts: [                 // required
-          address   // This is the address of multisig wallet
-        ],
-        chainId            // required
+        accounts: [address],
+        chainId
       })
-
 
       if (connector.connected) {
         setIsConnected(true)
         console.log("Session successfully connected.")
       }
-
-      /* payload:
-      {
-        id: 1,
-        jsonrpc: '2.0'.
-        method: 'session_request',
-        params: [{
-          peerId: '15d8b6a3-15bd-493e-9358-111e3a4e6ee4',
-          peerMeta: {
-            name: "WalletConnect Example",
-            description: "Try out WalletConnect v1.0",
-            icons: ["https://example.walletconnect.org/favicon.ico"],
-            url: "https://example.walletconnect.org"
-          }
-        }]
-      }
-      */
     });
 
-
-    // Subscribe to call requests
     connector.on("call_request", (error, payload) => {
       if (error) {
         throw error;
       }
 
-      // Handle Call Request
       console.log("Event: call_request", payload)
       parseCallRequest(payload)
 
-      /* payload:
-      {
-        id: 1,
-        jsonrpc: '2.0'.
-        method: 'eth_sign',
-        params: [
-          "0xbc28ea04101f03ea7a94c1379bc3ab32e65e62d3",
-          "My email is john@doe.com - 1537836206101"
-        ]
-      }
-      */
     });
 
     connector.on("disconnect", (error, payload) => {
@@ -143,11 +107,7 @@ const WalletConnectInput = ({
 
     });
 
-    console.log("connector", connector)
-    setWalletConnectConnector(connector)
-
   }
-
   const killSession = () => {
 
     console.log("ACTION", "killSession")
