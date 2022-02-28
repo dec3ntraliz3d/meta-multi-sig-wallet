@@ -1,27 +1,21 @@
-import { Button, Input, Modal, notification } from "antd"
+import { Button, Input } from "antd"
 import WalletConnect from "@walletconnect/client";
 import { useState, useEffect } from "react";
 import { useLocalStorage } from "../hooks";
 import { getAbiFromEtherscan } from "../helpers";
 import { ethers } from "ethers";
 import CalldataModal from "./CalldataModal";
-import { useHistory } from "react-router-dom";
-
-const axios = require("axios");
 
 const WalletConnectInput = ({
   chainId,
-  address, // Address of the wallet that will connect to dapp via wallet connect.
-  loadWalletConnectData // funtion passed from parent component to pass data,to,value, parsed transaction data.
+  address,
+  loadWalletConnectData
 }) => {
 
   const [walletConnectConnector, setWalletConnectConnector] = useLocalStorage("walletConnectConnector")
   const [walletConnectUri, setWalletConnectUri] = useLocalStorage("walletConnectUri", "")
-  //const [walletConnectUri, setWalletConnectUri] = useState("")
   const [isConnected, setIsConnected] = useLocalStorage("isConnected", false)
-  //const [isConnected, setIsConnected] = useState(false)
   const [peerMeta, setPeerMeta] = useLocalStorage("peerMeta")
-  //const [peerMeta, setPeerMeta] = useState()
 
   const [data, setData] = useState()
   const [to, setTo] = useState()
@@ -29,8 +23,6 @@ const WalletConnectInput = ({
   const [id, setId] = useState()
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [parsedTransactionData, setParsedTransactionData] = useState()
-
-  const history = useHistory();
 
   useEffect(() => {
 
@@ -42,23 +34,32 @@ const WalletConnectInput = ({
   }, [walletConnectUri])
 
   const initiateAndSubscribe = () => {
-
-
-    // Create connector
-    const connector = new WalletConnect(
-      {
-        // Required
-        uri: walletConnectUri,
-        // Required
-        clientMeta: {
-          description: "Multisig Wallet built using Scaffold-eth",
-          url: "http://multisig.dec3ntraliz3d.surge.sh",
-          icons: ["https://walletconnect.org/walletconnect-logo.png"],
-          name: "Meta Mulisig Wallet",
+    let connector;
+    try {
+      // Create connector
+      connector = new WalletConnect(
+        {
+          // Required
+          uri: walletConnectUri,
+          // Required
+          clientMeta: {
+            description: "Multisig Wallet",
+            url: "https://multisig-kovan.surge.sh",
+            icons: ["https://walletconnect.org/walletconnect-logo.png"],
+            name: "Meta Multisig",
+          },
         },
-      },
 
-    );
+      );
+
+    } catch (error) {
+
+      // If wallet connect URI is invalid . Show error message and set uri to ""
+      alert(error)
+      setWalletConnectUri("")
+      return
+
+    }
 
     // Subscribe to session requests
     connector.on("session_request", (error, payload) => {
@@ -161,6 +162,7 @@ const WalletConnectInput = ({
 
   }
 
+  // Parse wallet connect call request data into state variables
   const parseCallRequest = (payload) => {
     const callData = payload.params[0]
     setId(payload.id)
@@ -177,10 +179,10 @@ const WalletConnectInput = ({
     }
   }, [data])
 
+  // Try to parse callData when available. Parse data is shown on the confirmation Modal. 
   const decodeFunctionData = async () => {
 
-    // get contract ABI from Etherscan and update state variable
-    // then decode function data
+
     try {
       const abi = await getAbiFromEtherscan(to)
       const iface = new ethers.utils.Interface(abi)
@@ -188,6 +190,7 @@ const WalletConnectInput = ({
       setParsedTransactionData(parsedTransactionData)
     } catch (error) {
       console.log(error)
+      // Unable to parse calldata using ABI. 
       setParsedTransactionData(null)
     }
 
@@ -196,24 +199,30 @@ const WalletConnectInput = ({
 
   }
   const hideModal = () => setIsModalVisible(false)
+
   const proposeTransaction = () => {
 
     // This function can be used to pass data to parent.
-    // When user confirms on the CallModal component this function get called.
-    // provide calldata, value, to, 
-    console.log("Transaction proposed")
+    // When user confirms on the CallModal component ( Child of this component) this function get called.
+
+    console.log("Accepted wallet connect call request.")
+
+
     loadWalletConnectData({
-      data,
-      to,
+      data, // calldata received via walletconnect
+      to,  // Contract address 
       value,
-      txnData: parsedTransactionData
+      txnData: parsedTransactionData  // this is parsedtransaction data . Null when unable to decode function.
     })
-    // Pass values to parent to update parents data, to ,value
+
   }
+
+  /*
+  Clean up local storage related to walletConnect
+  Set walletconnect Uri to "" 
+  */
   const cleanUp = () => {
-    // Clean up local storage related to walletConnect
-    //Set wc Uri to empty 
-    // Set connector to null 
+
     setWalletConnectUri("")
     setIsConnected(false)
     setWalletConnectConnector(null)
@@ -264,18 +273,6 @@ const WalletConnectInput = ({
 
       </Button>
       }
-
-      {/* {!isConnected && <Button
-        style={{ marginTop: 20 }}
-        onClick={() => {
-          setIsConnected(true)
-        }}
-        type="primary"
-      >
-        Connect
-
-      </Button>
-      } */}
     </div>
   )
 }
