@@ -5,7 +5,7 @@ const CalldataModal = ({
     parsedTransactionData,
     isModalVisible,
     hideModal,
-    proposeTransaction,
+    handleOk,
     value,
     appUrl,
     data,
@@ -20,7 +20,7 @@ const CalldataModal = ({
             onOk={() => {
 
                 hideModal()
-                proposeTransaction()
+                handleOk()
             }}
             onCancel={hideModal}
         >

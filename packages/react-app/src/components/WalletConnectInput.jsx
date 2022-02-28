@@ -19,7 +19,7 @@ const WalletConnectInput = ({
   const [data, setData] = useState()
   const [to, setTo] = useState()
   const [value, setValue] = useState()
-  const [id, setId] = useState()
+  const [callRequestId, setCallRequestId] = useState()
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [parsedTransactionData, setParsedTransactionData] = useState()
 
@@ -103,46 +103,28 @@ const WalletConnectInput = ({
         throw error;
       }
 
-      cleanUp()
+      resetConnection()
 
     });
 
   }
-  const killSession = () => {
 
-    console.log("ACTION", "killSession")
-    // Kill Session
-    setIsConnected(false)
-    setWalletConnectUri("")
-
-    if (walletConnectConnector.connected) {
-      walletConnectConnector.killSession()
-
-    }
-
-  }
-
-  // Parse wallet connect call request data into state variables
   const parseCallRequest = (payload) => {
     const callData = payload.params[0]
-    setId(payload.id)
+    setCallRequestId(payload.id)
     setValue(callData.value)
     setTo(callData.to)
     setData(callData.data)
-
   }
 
   useEffect(() => {
     if (data && to) {
-      //decode function data 
       decodeFunctionData()
     }
   }, [data])
 
-  // Try to parse callData when available. Parse data is shown on the confirmation Modal. 
+
   const decodeFunctionData = async () => {
-
-
     try {
       const abi = await getAbiFromEtherscan(to)
       const iface = new ethers.utils.Interface(abi)
@@ -150,38 +132,37 @@ const WalletConnectInput = ({
       setParsedTransactionData(parsedTransactionData)
     } catch (error) {
       console.log(error)
-      // Unable to parse calldata using ABI. 
+      // If unable to decode funtion signature using etherscan. 
       setParsedTransactionData(null)
     }
-
     setIsModalVisible(true)
-
-
   }
+
+
+  const killSession = () => {
+    console.log("ACTION", "killSession")
+    if (walletConnectConnector.connected) {
+      walletConnectConnector.killSession()
+    }
+  }
+
   const hideModal = () => setIsModalVisible(false)
 
-  const proposeTransaction = () => {
-
-    // This function can be used to pass data to parent.
-    // When user confirms on the CallModal component ( Child of this component) this function get called.
-
+  const handleOk = () => {
     console.log("Accepted wallet connect call request.")
-
-
+    /*
+      Push data to parent . Todo: refactor by lifting the states up. 
+    */
     loadWalletConnectData({
-      data, // calldata received via walletconnect
-      to,  // Contract address 
+      data,
+      to,
       value,
-      txnData: parsedTransactionData  // this is parsedtransaction data . Null when unable to decode function.
+      txnData: parsedTransactionData
     })
-
   }
 
-  /*
-  Clean up local storage related to walletConnect
-  Set walletconnect Uri to "" 
-  */
-  const cleanUp = () => {
+
+  const resetConnection = () => {
 
     setWalletConnectUri("")
     setIsConnected(false)
@@ -218,7 +199,7 @@ const WalletConnectInput = ({
         parsedTransactionData={parsedTransactionData}
         isModalVisible={isModalVisible}
         hideModal={hideModal}
-        proposeTransaction={proposeTransaction}
+        handleOk={handleOk}
         value={value}
         appUrl={peerMeta.url}
         data={data}
