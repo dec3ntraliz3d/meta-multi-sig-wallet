@@ -145,7 +145,7 @@ const WalletConnectInput = ({
 
   const decodeFunctionData = async (data, to) => {
     try {
-      const abi = await getAbiFromEtherscan(to)
+      const abi = await getAbiFromEtherscan(to, chainId)
       const iface = new ethers.utils.Interface(abi)
       return (iface.parseTransaction({ data }))
     }
