@@ -1,6 +1,6 @@
 # Multisig wallet - Offchain Signing ( walletconnect)
 ### [Kovan Example App](https://multisig-kovan.surge.sh "Meta Multisig wallet")
-### [Mainnet Example App](https://multisig-kovan.surge.sh "Meta Multisig wallet")
+### [Mainnet Example App](https://multisig-mainnet.surge.sh "Meta Multisig wallet")
 
 ## Built with 🏗 Scaffold-ETH
 
