@@ -1,5 +1,6 @@
 // MY INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
-export const INFURA_ID = "28cc8377376d4be8b8f89bd2ee353778";
+//export const INFURA_ID = "28cc8377376d4be8b8f89bd2ee353778";
+export const INFURA_ID = "460f40a260564ac4a4f4b3fffb032dad"
 
 // MY ETHERSCAN_ID, SWAP IN YOURS FROM https://etherscan.io/myapikey
 export const ETHERSCAN_KEY = "CPK96XEP4FNMCAPZR9JEQD3NAJ9MHCAH41";

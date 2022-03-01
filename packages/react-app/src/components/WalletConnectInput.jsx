@@ -6,22 +6,46 @@ import { getAbiFromEtherscan } from "../helpers";
 import { ethers } from "ethers";
 import CalldataModal from "./CalldataModal";
 
+/**
+  ~ What it does? ~
+  Displays a walletconnect input field where users can paste walletconnect URL from a dapp
+  and then perform transaction. This component is specially designed just to get calldata 
+  from a dapp and not actual walletconnect transaction. Usecases include meta multisig transaction
+  where you want to connect your multisig wallet to a dapp and propose transaction.
+
+  ~ How can I use? ~
+  <WalletConnectInput
+    chainId={localProvider?._network.chainId}
+    address={multiSigContractAddress}
+    transaction={transaction}
+    updateWalletConnectTxnData={updateWalletConnectTxnData}
+    confirmTransaction={confirmTransaction}
+  />
+
+  ~ Features ~
+
+    - transaction: This is an object that represents a transaction { to, amount, data, parsedTxnData } . 
+    For parsedTxnData , check https://docs.ethers.io/v5/api/utils/abi/interface/#Interface--parsing . 
+    parsedTxnData is only used for display/UX purposes and not needed for actual transaction.
+    - updateWalletConnectTxnData is a function to update parent's state variables from this component. Lifting
+    states up :)
+    - confirmTransaction is a function passed from parent component and is called when user
+    confirms walletConnect calldata. 
+**/
+
 const WalletConnectInput = ({
   chainId,
   address,
-  loadWalletConnectData
+  transaction,
+  updateWalletConnectTxnData,
+  confirmTransaction
 }) => {
 
   const [walletConnectConnector, setWalletConnectConnector] = useLocalStorage("walletConnectConnector")
   const [walletConnectUri, setWalletConnectUri] = useLocalStorage("walletConnectUri", "")
   const [isConnected, setIsConnected] = useLocalStorage("isConnected", false)
   const [peerMeta, setPeerMeta] = useLocalStorage("peerMeta")
-  const [data, setData] = useState()
-  const [to, setTo] = useState()
-  const [value, setValue] = useState()
-  const [callRequestId, setCallRequestId] = useState()
   const [isModalVisible, setIsModalVisible] = useState(false)
-  const [parsedTransactionData, setParsedTransactionData] = useState()
 
   useEffect(() => {
     if (walletConnectUri) {
@@ -109,35 +133,28 @@ const WalletConnectInput = ({
 
   }
 
-  const parseCallRequest = (payload) => {
-    const callData = payload.params[0]
-    setCallRequestId(payload.id)
-    setValue(callData.value)
-    setTo(callData.to)
-    setData(callData.data)
-  }
-
-  useEffect(() => {
-    if (data && to) {
-      decodeFunctionData()
-    }
-  }, [data])
-
-
-  const decodeFunctionData = async () => {
-    try {
-      const abi = await getAbiFromEtherscan(to)
-      const iface = new ethers.utils.Interface(abi)
-      const parsedTransactionData = iface.parseTransaction({ data })
-      setParsedTransactionData(parsedTransactionData)
-    } catch (error) {
-      console.log(error)
-      // If unable to decode funtion signature using etherscan. 
-      setParsedTransactionData(null)
-    }
+  const parseCallRequest = async (payload) => {
+    const { value, to, data } = payload.params[0]
+    const parsedTxnData = await decodeFunctionData(data, to)
+    const amount = value ? ethers.utils.formatEther(value) : "0.0"
+    updateWalletConnectTxnData({
+      to, amount, data, parsedTxnData
+    })
     setIsModalVisible(true)
   }
 
+  const decodeFunctionData = async (data, to) => {
+    try {
+      const abi = await getAbiFromEtherscan(to)
+      const iface = new ethers.utils.Interface(abi)
+      return (iface.parseTransaction({ data }))
+    }
+    catch (error) {
+      console.log(error)
+      // If unable to decode funtion signature using etherscan. 
+      return null
+    }
+  }
 
   const killSession = () => {
     console.log("ACTION", "killSession")
@@ -148,29 +165,13 @@ const WalletConnectInput = ({
 
   const hideModal = () => setIsModalVisible(false)
 
-  const handleOk = () => {
-    console.log("Accepted wallet connect call request.")
-    /*
-      Push data to parent . Todo: refactor by lifting the states up. 
-    */
-    loadWalletConnectData({
-      data,
-      to,
-      value,
-      txnData: parsedTransactionData
-    })
-  }
-
-
   const resetConnection = () => {
-
     setWalletConnectUri("")
     setIsConnected(false)
     setWalletConnectConnector(null)
-    setData()
-    setValue()
-    setTo()
-
+    updateWalletConnectTxnData({
+      to: null, amount: null, data: null, parsedTxnData: null
+    })
   }
 
   return (
@@ -196,13 +197,13 @@ const WalletConnectInput = ({
 
         </div>}
       {isModalVisible && <CalldataModal
-        parsedTransactionData={parsedTransactionData}
+        parsedTransactionData={transaction.parsedTxnData}
         isModalVisible={isModalVisible}
         hideModal={hideModal}
-        handleOk={handleOk}
-        value={value}
+        handleOk={confirmTransaction}
+        value={transaction.amount}
         appUrl={peerMeta.url}
-        data={data}
+        data={transaction.data}
         appIcon={peerMeta.icons[0]}
 
       />}

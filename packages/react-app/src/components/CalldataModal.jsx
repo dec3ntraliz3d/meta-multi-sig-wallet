@@ -33,7 +33,7 @@ const CalldataModal = ({
             <p>name:{parsedTransactionData?.name}<br />
                 sighash:{parsedTransactionData?.sighash}<br />
                 signature:{parsedTransactionData?.signature}<br />
-                value:{value ? ethers.utils.formatEther(value) : ""}<br />
+                value:{value ? value.toString() : ""}<br />
                 data:{data}</p>
 
         </Modal>
