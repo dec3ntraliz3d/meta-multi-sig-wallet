@@ -13,7 +13,7 @@ module.exports = async ({ getNamedAccounts, deployments, getChainId }) => {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
     args: [chainId,
-      ["0xB7dE865F28abDFa413933c2605f56ced7D53a423",],
+      ["PUT_YOUR_SIGNER_ADDRESSES",],
       1],
     log: true,
     // waitConfirmations: 1,
