@@ -5,7 +5,6 @@ import { List, Spin } from "antd";
 import { getAbiFromEtherscan } from "../helpers";
 import { ethers } from "ethers";
 import { useEffect, useState } from "react";
-import { ChainId } from "@uniswap/sdk";
 
 function MultiSig({
   contractAddress,
@@ -29,7 +28,7 @@ function MultiSig({
     try {
 
       // if parseTransaction fails set parsedTxnData/decoded function data to null.
-      const abi = await getAbiFromEtherscan(to, ChainId)
+      const abi = await getAbiFromEtherscan(to, localProvider?._network.chainId)
       const iface = new ethers.utils.Interface(abi)
       return (iface.parseTransaction({ data }))
 
