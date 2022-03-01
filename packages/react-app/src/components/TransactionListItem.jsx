@@ -22,6 +22,7 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
   let txnData;
   try {
     item.data != "0x" ? txnData = readContracts[contractName].interface.parseTransaction(item) : txnData = "";
+    console.log({ txnData })
   } catch (error) {
     console.log("ERROR", error)
   }
@@ -48,7 +49,7 @@ const TransactionListItem = function ({ item, mainnetProvider, blockExplorer, pr
       >
         <p>
           <b>Event Name :&nbsp;</b>
-          {txnData != "" ? txnData?.functionFragment?.name : "Ttransfer Funds"}&nbsp;
+          {txnData != "" ? txnData?.functionFragment?.name : "Transfer Funds"}&nbsp;
         </p>
         <p>
           <b>Addressed to :&nbsp;</b>

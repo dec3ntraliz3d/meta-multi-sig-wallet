@@ -1,5 +1,6 @@
 // MY INFURA_ID, SWAP IN YOURS FROM https://infura.io/dashboard/ethereum
-export const INFURA_ID = "28cc8377376d4be8b8f89bd2ee353778";
+//export const INFURA_ID = "28cc8377376d4be8b8f89bd2ee353778";
+export const INFURA_ID = "460f40a260564ac4a4f4b3fffb032dad"
 
 // MY ETHERSCAN_ID, SWAP IN YOURS FROM https://etherscan.io/myapikey
 export const ETHERSCAN_KEY = "CPK96XEP4FNMCAPZR9JEQD3NAJ9MHCAH41";
@@ -8,6 +9,10 @@ export const ETHERSCAN_KEY = "CPK96XEP4FNMCAPZR9JEQD3NAJ9MHCAH41";
 export const BLOCKNATIVE_DAPPID = "853f540a-4758-4801-bfbf-d11a7280872b";
 
 export const ALCHEMY_KEY = "oKxs-03sij-U_N0iOlrSsZFr29-IqbuF";
+
+//export const BACKEND_URL = "https://meta-multisig-backend.herokuapp.com/"
+// for local backend.
+export const BACKEND_URL = "http://localhost:49832/"
 
 export const NETWORKS = {
   localhost: {

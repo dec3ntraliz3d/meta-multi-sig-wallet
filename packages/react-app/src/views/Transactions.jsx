@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Button, List, Spin } from "antd";
 import { ethers } from "ethers";
-import { TransactionListItem } from "../components";
 import { usePoller } from "../hooks";
+import { TransactionList } from "../components";
 
 const axios = require("axios");
 
@@ -25,13 +25,12 @@ export default function Transactions({
 
 }) {
 
-
   const [transactions, setTransactions] = useState();
   usePoller(() => {
     const getTransactions = async () => {
       if (true) console.log("🛰 Requesting Transaction List");
       const res = await axios.get(
-        poolServerUrl + readContracts[contractName]?.address + "_" + localProvider._network.chainId,
+        poolServerUrl + readContracts[contractName]?.address + "_" + localProvider?._network.chainId,
       );
       const newTransactions = [];
       for (const i in res.data) {
@@ -92,9 +91,7 @@ export default function Transactions({
   if (!signaturesRequired) {
     return <Spin />;
   }
-
   console.log("transactions", transactions)
-
   return (
     <div style={{ maxWidth: 750, margin: "auto", marginTop: 32, marginBottom: 32 }}>
       <h1>
@@ -105,13 +102,20 @@ export default function Transactions({
         bordered
         dataSource={transactions}
         renderItem={item => {
-          console.log("ITE88888M", item);
-
           const hasSigned = item.signers.indexOf(address) >= 0;
           const hasEnoughSignatures = item.signatures.length <= signaturesRequired.toNumber();
 
           return (
-            <TransactionListItem item={item} mainnetProvider={mainnetProvider} blockExplorer={blockExplorer} price={price} readContracts={readContracts} contractName={contractName}>
+            <TransactionList
+              parsedTxnData={item.parsedTxnData}
+              mainnetProvider={mainnetProvider}
+              blockExplorer={blockExplorer}
+              price={price}
+              transactionHash={item.hash}
+              addressedTo={item.to}
+              nonce={item.nonce}
+              value={item.amount}
+            >
               <span>
                 {item.signatures.length}/{signaturesRequired.toNumber()} {hasSigned ? "✅" : ""}
               </span>
@@ -121,7 +125,7 @@ export default function Transactions({
 
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
-                    item.data == "0x" ? item.to : item.address,
+                    item.to,
                     ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
@@ -162,7 +166,7 @@ export default function Transactions({
                 onClick={async () => {
                   const newHash = await readContracts[contractName].getTransactionHash(
                     item.nonce,
-                    item.data == "0x" ? item.to : item.address,
+                    item.to,
                     ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                     item.data,
                   );
@@ -174,7 +178,7 @@ export default function Transactions({
 
                   tx(
                     writeContracts[contractName].executeTransaction(
-                      item.data == "0x" ? item.to : item.address,
+                      item.to,
                       ethers.utils.parseEther("" + parseFloat(item.amount).toFixed(12)),
                       item.data,
                       finalSigList,
@@ -185,7 +189,7 @@ export default function Transactions({
               >
                 Exec
               </Button>
-            </TransactionListItem>
+            </TransactionList>
           );
         }}
       />

@@ -16,8 +16,6 @@ export default function Transactor(
   gasPrice,
   etherscan
 ) {
-  console.log("providerOrSigner", providerOrSigner)
-
 
   if (typeof providerOrSigner !== "undefined") {
 

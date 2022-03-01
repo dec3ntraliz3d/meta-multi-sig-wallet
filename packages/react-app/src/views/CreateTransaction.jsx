@@ -1,11 +1,11 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Button, Select, Input, Spin, Space } from "antd";
-import { Address, AddressInput, Balance, EtherInput, Blockie, Owners } from "../components";
+import { Button, Select, Input, Space } from "antd";
+import { AddressInput, EtherInput, Owners } from "../components";
 import { useContractReader } from "eth-hooks";
 import { useLocalStorage } from "../hooks";
 import { ethers } from "ethers";
-import { set } from "store";
+import { WalletConnectInput } from "../components";
 const { Option } = Select;
 
 const axios = require("axios");
@@ -21,11 +21,9 @@ export default function CreateTransaction({
   blockExplorer,
   signaturesRequired,
 
+
 }) {
   const history = useHistory();
-
-  console.log("signaturesRequired", signaturesRequired)
-
 
   const nonce = useContractReader(readContracts, contractName, "nonce");
   const multiSigContractAddress = readContracts[contractName]?.address;
@@ -33,26 +31,48 @@ export default function CreateTransaction({
   const [selectDisabled, setSelectDisabled] = useState(false);
   const [methodName, setMethodName] = useLocalStorage("methodName", "transferFunds")
   const [newSignaturesRequired, setNewSignaturesRequired] = useState(signaturesRequired)
-  const [amount, setAmount] = useState("0");
-  const [to, setTo] = useLocalStorage("to");
+  const [signer, setSigner] = useState()
+  const [transferTo, setTransferTo] = useLocalStorage("transferTo")
   const [loading, setLoading] = useState(false)
+  const [transaction, setTransaction] = useState({
+    to: null, amount: null, data: null, parsedTxnData: null
+  })
 
-  const inputStyle = {
-    padding: 10,
-  };
+  // This function is passed to walletconnect component to update states. Lift state up :)
+  const updateWalletConnectTxnData = (transaction) => {
+    setTransaction(transaction)
+  }
+
+  const createTransactionData = () => {
+    setSelectDisabled(true)
+
+    if (methodName == "transferFunds") {
+      console.log("methodName", methodName)
+      setTransaction(prevState => ({
+        ...prevState, to: transferTo, data: "0x", parsedTxnData: null
+      }))
+      return
+    }
+    const functionData = readContracts[contractName]?.interface?.encodeFunctionData(methodName, [signer, newSignaturesRequired])
+    const decodedTxnData = readContracts[contractName]?.interface?.parseTransaction({ data: functionData })
+    setTransaction(prevState => ({
+      ...prevState,
+      to: multiSigContractAddress,
+      data: functionData,
+      parsedTxnData: decodedTxnData
+    }))
+
+  }
 
   // When user confirms transaction, details are sent to backend.
   const confirmTransaction = async () => {
-    setLoading(true)
-    let callData;
-    methodName == "transferFunds" ? callData = "0x" :
-      callData = readContracts[contractName]?.interface?.encodeFunctionData(methodName, [to, newSignaturesRequired])
 
+    setLoading(true)
     const newHash = await readContracts?.MetaMultiSigWallet?.getTransactionHash(
       nonce.toNumber(),
-      callData == "0x" ? to : multiSigContractAddress,
-      ethers.utils.parseEther("" + parseFloat(amount).toFixed(12)),
-      callData,
+      transaction.to,
+      ethers.utils.parseEther("" + parseFloat(transaction.amount).toFixed(12)),
+      transaction.data ,
     );
 
     const signature = await userSigner?.signMessage(ethers.utils.arrayify(newHash))
@@ -67,11 +87,12 @@ export default function CreateTransaction({
     if (isOwner) {
       const res = await axios.post(poolServerUrl, {
         chainId: localProvider._network.chainId,
-        address: readContracts[contractName]?.address,
+        address: multiSigContractAddress,
         nonce: nonce.toNumber(),
-        to,
-        amount,
-        data: callData,
+        to: transaction.to,
+        amount: transaction.amount,
+        data: transaction.data,
+        parsedTxnData: transaction.parsedTxnData,
         hash: newHash,
         signatures: [signature],
         signers: [recover],
@@ -86,32 +107,46 @@ export default function CreateTransaction({
     } else {
       console.log("ERROR, NOT OWNER.");
     }
-
-
-
   }
 
   return (
     <div>
 
-      <div style={{ border: "1px solid #cccccc", padding: 16, width: 400, margin: "auto", marginTop: 64 }}>
+      <div style={{ padding: 16, width: 400, margin: "auto", marginTop: 64, marginBottom: 20 }}>
         <div style={{ margin: 8 }}>
           <div style={{ margin: 8, padding: 8 }}>
             <Select value={methodName} disabled={selectDisabled} style={{ width: "100%" }} onChange={setMethodName}>
               <Option key="transferFunds">Transfer </Option>
               <Option key="addSigner">Add Signer</Option>
               <Option key="removeSigner">Remove Signer</Option>
+
             </Select>
           </div>
-          <div style={inputStyle}>
-            <AddressInput
-              autoFocus
-              disabled={selectDisabled}
-              ensProvider={mainnetProvider}
-              placeholder={methodName == "transferFunds" ? "to address" : "Owner address"}
-              value={to}
-              onChange={setTo}
-            />
+          <div style={{ padding: 10 }}>
+            {methodName != "transferFunds" &&
+              <AddressInput
+                autoFocus
+                disabled={selectDisabled}
+                ensProvider={mainnetProvider}
+                placeholder={"Signer address"}
+                value={signer}
+                onChange={setSigner}
+              />
+            }
+
+            {methodName == "transferFunds" &&
+
+              <AddressInput
+                autoFocus
+                disabled={selectDisabled}
+                ensProvider={mainnetProvider}
+                placeholder={"to address"}
+                value={transferTo}
+                onChange={setTransferTo}
+              />
+
+            }
+
           </div>
           {methodName != "transferFunds" &&
             <div style={{ margin: 8, padding: 8 }}>
@@ -124,12 +159,17 @@ export default function CreateTransaction({
             </div>
           }
 
-          {methodName == "transferFunds" && <div style={inputStyle}>
+          {methodName == "transferFunds" && <div style={{ padding: 10 }}>
             <EtherInput
               price={price}
               mode="USD"
-              value={amount}
-              onChange={setAmount}
+              value={transaction.amount}
+              onChange={(amount) => {
+                setTransaction(prevState => ({
+                  ...prevState, amount
+                }))
+              }
+              }
               disabled={selectDisabled}
             />
           </div>}
@@ -137,9 +177,7 @@ export default function CreateTransaction({
           {!selectDisabled && <Button
             style={{ marginTop: 32 }}
             type="primary"
-            onClick={() => {
-              setSelectDisabled(true)
-            }}
+            onClick={createTransactionData}
 
           > Create
           </Button>
@@ -167,6 +205,14 @@ export default function CreateTransaction({
         </div>
 
       </div>
+      <WalletConnectInput
+        chainId={localProvider?._network.chainId}
+        address={multiSigContractAddress}
+        transaction={transaction}
+        updateWalletConnectTxnData={updateWalletConnectTxnData}
+        confirmTransaction={confirmTransaction}
+
+      />
       <Owners
         signaturesRequired={signaturesRequired}
         mainnetProvider={mainnetProvider}
