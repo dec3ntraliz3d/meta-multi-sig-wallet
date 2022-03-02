@@ -29,3 +29,4 @@ export { default as MultiSigTransactionListItem } from "./MultiSigTransactionLis
 export { default as Owners } from "./Owners"
 export { default as WalletConnectInput } from "./WalletConnectInput"
 export { default as TransactionList } from "./TransactionList"
+export { default as WaletConnectScanner } from "./WalletConnectScanner"
