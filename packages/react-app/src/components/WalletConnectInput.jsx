@@ -5,6 +5,7 @@ import { useLocalStorage } from "../hooks";
 import { getAbiFromEtherscan } from "../helpers";
 import { ethers } from "ethers";
 import CalldataModal from "./CalldataModal";
+import QrReader from "react-qr-reader";
 
 /**
   ~ What it does? ~
@@ -176,7 +177,6 @@ const WalletConnectInput = ({
 
   return (
     <div style={{ width: 600, margin: "auto" }}>
-
       <Input
         bordered
         placeholder="Paste wc: uri"
@@ -184,9 +184,7 @@ const WalletConnectInput = ({
         value={walletConnectUri}
         onChange={e => setWalletConnectUri(e.target.value)}
         addonBefore={<img src="wc-logo.svg" style={{ height: 20, width: 20 }} />}
-
       />
-
       {isConnected &&
         <div style={{ marginTop: 10 }}>
           <img
